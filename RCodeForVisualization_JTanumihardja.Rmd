@@ -177,6 +177,15 @@ names(water1)
 names(water2)
 ```
 
+Save df for future use
+```{r eval=FALSE}
+#if want to write the df in folder
+write.csv(water1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv", row.names=FALSE)
+
+write.csv(water2, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv", row.names=FALSE)
+```
+
+
 ### Donut Plot - water
 
 World summary:
@@ -210,18 +219,25 @@ water1 %>%
 
 **Per country**
 
+```{r eval=FALSE}
+unique(water1$COUNTRY)
+```
+
+
 ```{r}
 #set hole size to be the x axis so we can control the shape
 hsize <- 3
 
-water1 %>% 
+df.plot <- water1 %>% 
   filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
            YEAR == 2020 &
            REGION == "NATIONAL" &
-           COUNTRY == "Indonesia" &
+           COUNTRY %in% c("Indonesia", "Japan", "China") & #facet wrap
            !is.na(Percentage)) %>% #remove NA to prepare for calculation below
-  group_by(ServiceLevel) %>% #combine all country
-  summarise(median = median(Percentage)) %>% 
+  group_by(ServiceLevel, COUNTRY, YEAR) %>% #combine all country
+  summarise(median = median(Percentage)) 
+
+plot <- df.plot %>% 
   ggplot(aes(x=hsize, y=median))+
     geom_col(aes(fill=ServiceLevel))+
     geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
@@ -231,8 +247,16 @@ water1 %>%
     xlim(c(0.2, hsize + 0.5))+ #(c(2018.5, 2020.5)) +
     scale_fill_brewer(palette = "PuBuGn") + #set color pallete per dataset
         # Set theme_void() to remove grid lines and everything else from the plot
+    facet_wrap(~COUNTRY)+
     theme_void()
+
+plot
 ```
+
+```{r}
+df.plot
+```
+
 
 **Per WHO Region**
 
@@ -242,7 +266,7 @@ hsize <- 3
 
 water1 %>% 
   filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
-           YEAR == 2020 &
+           YEAR == 2020 & #how to deal with range?
            REGION == "NATIONAL" &
            WHORegion == "South-East Asia" &
            !is.na(Percentage)) %>% #remove NA to prepare for calculation below
@@ -513,6 +537,13 @@ names(sanitation1)
 names(sanitation2)
 ```
 
+Save df for future use
+```{r eval=FALSE}
+#if want to write the df in folder
+write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation1.csv", row.names=FALSE)
+
+write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv", row.names=FALSE)
+```
 
 ### QUESTION
 
@@ -659,105 +690,100 @@ sanitation1 %>%
 Definition:
 Hygiene refers to the conditions and practices that help maintain health and prevent spread of disease including handwashing, food hygiene, and menstrual hygiene management (https://washdata.org/monitoring/hygiene).
 
-```{r}
+```{r eval=FALSE}
 hygiene_raw <- read_excel(file_path, sheet = "Hygiene") #.name_repair = "universal")
 
 hygiene_raw
 ```
 
+### Rename columns
+
+```{r}
+#rename column names
+hygiene <- read_excel(file_path, sheet = "Hygiene")
+
+#tidying
+hygiene <- hygiene[-c(1),] #remove 2nd row (1st row in R)
+
+column_names_hygiene <- c(
+  "COUNTRY",
+  "ISO3",
+  "YEAR",
+  "POPULATION(THOUSANDS)",
+  "%URBAN",
+  "NATIONAL_Basic",
+  "NATIONAL_Limited(withoutWaterOrSoap)",
+  "NATIONAL_NoFacility",
+  "NATIONAL_AnnualRateOfChangeInBasic",
+  "RURAL_Basic",
+  "RURAL_Limited(withoutWaterOrSoap)",
+  "RURAL_NoFacility",
+  "RURAL_AnnualRateOfChangeInBasic",
+  "URBAN_Basic",
+  "URBAN_Limited(withoutWaterOrSoap)",
+  "URBAN_NoFacility",
+  "URBAN_AnnualRateOfChangeInBasic",
+  "SI",
+  "SDGRegion", 
+  "WHORegion", 
+  "UNICEFProgrammingRegion", 
+  "UNICEFReportingRegion"
+)
+
+hygiene <- hygiene %>% rename_with(~column_names_hygiene)
+
+sapply(hygiene, class)
+```
+
+
+
 
 ###Tidying Data
 
 ```{r}
-#read Hygene dataset
-hygiene_data <- read_excel(file_path, sheet = "Hygiene")
-
-#rename column header accordingly (use camel type and _ to be separated later)
-  #we can also rename it simultaneously with piping (see renaming population below)
-hygiene_data <- rename(hygiene_data, 'NATIONAL_Basic' = 'NATIONAL')
-hygiene_data <- rename(hygiene_data, 'NATIONAL_Limited(withoutWaterOrSoap)' = '...7')
-hygiene_data <- rename(hygiene_data, 'NATIONAL_NoFacility' = '...8')
-hygiene_data <- rename(hygiene_data, 'NATIONAL_AnnualRateOfChangeInBasic' = '...9')
-hygiene_data <- rename(hygiene_data, 'RURAL_Basic' = 'RURAL')
-hygiene_data <- rename(hygiene_data, 'RURAL_Limited(withoutWaterOrSoap)' = '...11')
-hygiene_data <- rename(hygiene_data, 'RURAL_NoFacility' = '...12')
-hygiene_data <- rename(hygiene_data, 'RURAL_AnnualRateOfChangeInBasic' = '...13')
-hygiene_data <- rename(hygiene_data, 'URBAN_Basic' = 'URBAN')
-hygiene_data <- rename(hygiene_data, 'URBAN_Limited(withoutWaterOrSoap)' = '...15')
-hygiene_data <- rename(hygiene_data, 'URBAN_NoFacility' = '...16')
-hygiene_data <- rename(hygiene_data, 'URBAN_AnnualRateOfChangeInBasic' = '...17')
-hygiene_data <- rename(hygiene_data, 'SI' = '...18')
-hygiene_data <- rename(hygiene_data, 'SDGRegion' = '...19')
-hygiene_data <- rename(hygiene_data, 'WHORegion' = '...20')
-hygiene_data <- rename(hygiene_data, 'UNICEFProgrammingRegion' = '...21')
-hygiene_data <- rename(hygiene_data, 'UNICEFReportingRegion' = '...22')
-
-#tidying
-hygiene_data <- hygiene_data[-c(1),] #remove 2nd row (1st row in R)
-hygiene_data <- hygiene_data %>% select(-SI) #remove indexing
+hygiene <- hygiene %>% select(-SI) #remove indexing
 
 #replace "-" with NA
-hygiene_data <- hygiene_data %>% mutate_all(~ifelse(. == "-", NA, .))
+hygiene <- hygiene %>% mutate_all(~ifelse(. == "-", NA, .))
 
-hygiene_data
+#head(hygiene)
 ```
 
 ### Set as numeric
 
 ```{r }
 #clean non numeric
-#remove < and > on numbers column index 6 to 17
-  #which one is better? Do this or set <1 as 0.5? 
-#hygiene_data[, 6:17] <- lapply(hygiene_data[, 6:17], function(x)
-#  as.numeric(gsub("\\>|<","", as.character(x)))) #or "[^[:alnum:]]" or "[^[0-9]]" 
-
 # For now, "<1" is replaced with 0.5, and ">99" is replaced with 99.5
-hygiene_data <- hygiene_data %>% mutate_all(~ifelse(. == "<1", 0.5, .))
-hygiene_data <- hygiene_data %>% mutate_all(~ifelse(. == ">99", 99.5, .))
+hygiene <- hygiene %>% mutate_all(~ifelse(. == "<1", 0.5, .))
+hygiene <- hygiene %>% mutate_all(~ifelse(. == ">99", 99.5, .))
 
-str(hygiene_data)
-#hygiene_data
-```
-
-```{r}
-#change the values from character to numeric
-# Gives no warning such as "NAs introduced by coercion", and the mutation was successful
-hygiene_data <- hygiene_data %>%
+hygiene <- hygiene %>%
   mutate_at(6:17, as.numeric)
-```
 
-
-```{r}
-sapply(hygiene_data, class)
-```
-
-```{r}
-#rename column to standardize
-hygiene_data <- hygiene_data %>% 
-  rename("COUNTRY" = "HYGIENE",
-         "Population.thousands" = "Population \r\n(thousands)",
-         "PercentUrban" = "% urban")
-
-hygiene_data
+sapply(hygiene, class)
 ```
 
 ### Pivot Longer 
 
 ```{r}
 #Make dataset from wide to long, see R documentation (example shown below)
-hygiene_data2 <- hygiene_data %>% 
+hygiene1 <- hygiene %>% 
   pivot_longer(
     cols = NATIONAL_Basic:URBAN_AnnualRateOfChangeInBasic,
-    names_to = c("REGION", "FacilityType"),
+    names_to = c("REGION", "ServiceLevel"),
     names_sep = "_",
     values_to = "Percentage")
 
-hygiene_data2
+head(hygiene1)
 ```
 
-### Question:
+write to df:
 
-* Filter != AnnualRateOfChangeInBasic?
+```{r}
+#if want to write the df in folder
+write.csv(hygiene1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv", row.names=FALSE)
+```
+
 
 
 #### WHO example
@@ -824,7 +850,7 @@ hygiene_data2 %>%
     #theme(axis.text.x = element_text(angle=30, hjust=1))
 ```
 
-### Donut Plot
+### Donut Plot - Hygiene
 
 World summary:
 
@@ -921,7 +947,7 @@ hygiene_data2 %>%
 ```
 
 
-### Lollipop for rate of change or ranking
+### Lollipop for rate of change or ranking - Hygiene
 
 Diverging deviation for Annual Rate of Change in Basic:
 
@@ -978,14 +1004,14 @@ hygiene_data2 %>%
   arrange(desc(median)) %>% #highest first 
   ggplot(aes(x=WHORegion, y=median))+
     geom_segment(aes(xend=WHORegion, yend=0)) +
-    geom_point(size=4, color="orange") +
+    geom_point(size=4, color="lightgreen") +
     theme_bw() +
     labs(x="", y="median AnnualRateOfChangeInBasic %")+
     coord_flip()
 ```
 
 
-Ranking?? (TBD)
+**Ranking?? (TBD)**
 
 ```{r eval=FALSE}
 #hygiene_data2 %>% 
@@ -1002,4 +1028,4 @@ Ranking?? (TBD)
 # Question
 
 * how to filter top and bottom rows in the same pipe?
-* 
+* how to put the chosen year in the subtitle of the plot? Do we need this?
