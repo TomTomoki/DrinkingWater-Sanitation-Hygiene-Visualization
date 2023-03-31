@@ -70,9 +70,17 @@ plot_map <- function(df){
            avg_unimproved = mean(Unimproved, na.rm=TRUE),
            avg_surface = mean(`Surface water`, na.rm=TRUE))
   
-  plot <- ggplot(df, aes(x = long, y = lat, group = group, fill=avg_basic)) +
+  plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
     geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Inimproved: %.2f%%, Surface water: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_surface, 2))), 
-                             color = 'white')
+                             color = 'white') +
+    theme_classic() +
+    theme(
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank()) +
+    labs(title="Drinking Water Access Level - 2018 ~ 2020",
+         x ="",
+         y = "")
   
   girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
 }
