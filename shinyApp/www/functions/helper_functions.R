@@ -84,3 +84,20 @@ plot_map <- function(df){
   
   girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
 }
+
+
+plot_line <- function(df, region, year_start, year_end){
+  df_line <- df %>%
+    filter(toupper(REGION) == toupper(region) & YEAR >= year_start 
+           & YEAR <= year_end) %>%
+    mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
+           / 100 / 1000) %>%
+    group_by(YEAR, ServiceLevel) %>%
+    summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE))
+
+  
+  ggplot(data = df_line, aes(x=YEAR, y=`POPULATION(MILLIONS)`, 
+                             group=ServiceLevel, color=ServiceLevel)) +
+    geom_line() +
+    theme_bw()
+}

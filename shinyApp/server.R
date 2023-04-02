@@ -15,5 +15,9 @@ server <- function(input, output){
     output$dw_map_plot <- renderGirafe(
       plot_map(values$map_df)
     )
+    
+    output$dw_line_plot <- renderPlot({
+      plot_line(df_water, values$region, values$year_start, values$year_end)
+    })
   })
 }
