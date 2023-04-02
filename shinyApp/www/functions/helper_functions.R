@@ -99,5 +99,6 @@ plot_line <- function(df, region, year_start, year_end){
   ggplot(data = df_line, aes(x=YEAR, y=`POPULATION(MILLIONS)`, 
                              group=ServiceLevel, color=ServiceLevel)) +
     geom_line() +
+    geom_point() +
     theme_bw()
 }
