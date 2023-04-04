@@ -185,7 +185,7 @@ Save df for future use
 #write.csv(water2, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv", row.names=FALSE)
 ```
 
-### Load file directly
+### Load files directly
 
 ```{r}
 water1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv")
@@ -195,7 +195,7 @@ water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assi
 
 ```{r eval=FALSE}
 #check columns
-sapply(water1, class)
+sapply(water2, class)
 ```
 
 
@@ -351,6 +351,124 @@ water1 %>%
     coord_flip()
 ```
 
+## Summary Chart
+
+```{r}
+unique(water1$ServiceLevel)
+```
+
+
+```{r}
+#create summary df for the whole world "At Least Basic" level
+  #can also do it for "AnnualRateOfChangeInBasic" for ALL dataset?
+water_summary <- water1 %>% 
+  filter(ServiceLevel == "AtLeastBasic" &
+           REGION == "NATIONAL") %>% #can delete this if wanted to show difference
+  group_by(YEAR, ServiceLevel) %>% #combine all country
+  summarise(median = median(Percentage, na.rm=TRUE))
+
+sanitation_summary <- sanitation1 %>% 
+  filter(ServiceLevel == "AtLeastBasic" &
+           REGION == "NATIONAL") %>% 
+  group_by(YEAR, ServiceLevel) %>% #combine all country
+  summarise(median = median(Percentage, na.rm=TRUE))
+
+hygiene_summary <- hygiene1 %>% 
+  filter(ServiceLevel == "Basic" &
+           REGION == "NATIONAL") %>% 
+  group_by(YEAR, ServiceLevel) %>% #combine all country
+  summarise(median = median(Percentage, na.rm=TRUE))
+```
+
+source: https://www.statology.org/merge-multiple-data-frames-in-r/
+
+```{r}
+#merge those datasets (put to list and merge all)
+df_summary <- list(water_summary, sanitation_summary, hygiene_summary)
+
+df_summary <- df_summary %>% reduce(full_join, by='YEAR')
+```
+
+Drop not useful columns and rename colnames
+
+```{r}
+df_summary <- df_summary %>% 
+  select(YEAR, ServiceLevel.x, median.x, median.y, median)
+
+names(df_summary) <- c("YEAR", "ServiceLevel", "Water", "Sanitation", "Hygiene")
+df_summary
+```
+
+```{r}
+#pivot longer
+df_summary <- df_summary %>% 
+  pivot_longer(
+    cols = Water:Hygiene,
+    names_to = "Dataset",
+    values_to = "MedianPercentage")
+```
+
+
+```{r}
+#plot summary
+df_summary %>% 
+  filter(YEAR >= 2010 & YEAR <= 2020) %>% 
+  ggplot(aes(x=YEAR, y=MedianPercentage)) + 
+    geom_col(aes(fill=Dataset), position = "dodge") + 
+    theme_bw() +
+    labs(title = "World Percentage of At Least Basic", 
+         subtitle = "Median of All Countries Percentage",
+         y = "Percentage (median)")
+```
+**Two year comparison**
+
+Can also add REGION difference in FACET_WRAP() if wanted
+
+```{r}
+#plot summary
+df_summary %>% 
+  filter(YEAR == 2000 | YEAR == 2020) %>% #can make this reactive
+  mutate(YEAR = factor(YEAR)) %>% 
+  ggplot(aes(x=YEAR, y=MedianPercentage)) + 
+    geom_col(aes(fill=Dataset), position = "dodge", width=0.5) +
+    theme_bw() +
+    scale_fill_brewer(palette = "Accent")+
+    labs(title = "Growth of World's 'At Least Basic' Service Level", 
+         subtitle = "Median of All Countries Percentage",
+         y = "Percentage (median)")
+```
+
+color palette: https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+
+**Population Lacking of Basic Sanitation**
+```{r}
+sanitation1 %>% 
+  filter(ServiceLevel %in% c("Limited(shared)", "Unimproved", "OpenDefecation") & 
+           REGION == "NATIONAL") %>% 
+  filter(YEAR == 2000 | YEAR == 2020) %>% 
+  group_by(YEAR, ServiceLevel) %>% #combine all country
+  summarise(popul = sum(Percentage/100 * `POPULATION(THOUSANDS)`, #sum of all countries
+                           na.rm=TRUE)) #%>% #remove NA to maximize sample
+```
+
+
+```{r}
+#sanitation summary
+sanitation1 %>% 
+  filter(ServiceLevel %in% c("Limited(shared)", "Unimproved", "OpenDefecation") & 
+           REGION == "NATIONAL") %>% 
+  filter(YEAR == 2000 | YEAR == 2020) %>% 
+  group_by(YEAR, ServiceLevel) %>% #combine all country
+  summarise(popul = sum(Percentage/100 * `POPULATION(THOUSANDS)` /1000, #sum of all countries
+                           na.rm=TRUE)) %>% #remove NA to maximize sample
+  mutate(YEAR = factor(YEAR)) %>% 
+  ggplot(aes(x=YEAR, y=popul))+
+    geom_col(aes(fill=ServiceLevel), width = 0.5)+
+    scale_fill_brewer(palette = "GnBu") + #set color pallete per dataset
+    theme_bw()+
+  labs(title="World Population Lacking of Basic Sanitation",
+       y = "Population(millions)")
+```
 
 
 ---------------------------------------------------------------------------------
@@ -562,12 +680,21 @@ names(sanitation1)
 names(sanitation2)
 ```
 
+
 Save df for future use
 ```{r eval=FALSE}
 #if want to write the df in folder
 write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation1.csv", row.names=FALSE)
 
 write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv", row.names=FALSE)
+```
+
+### Load files directly
+
+```{r}
+sanitation1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation1.csv")
+
+sanitation2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv")
 ```
 
 ### QUESTION
@@ -806,10 +933,14 @@ write to df:
 
 ```{r}
 #if want to write the df in folder
-write.csv(hygiene1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv", row.names=FALSE)
+#write.csv(hygiene1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv", row.names=FALSE)
 ```
 
+### Load files directly
 
+```{r}
+hygiene1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv")
+```
 
 #### WHO example
 
