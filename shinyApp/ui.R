@@ -1,6 +1,7 @@
 ui <- fluidPage(
   navbarPage(
     "App Title",
+    id = "navbar",
     
     tabPanel(
       "Drinking Water",
@@ -103,7 +104,7 @@ ui <- fluidPage(
     ),
     
     tabPanel(
-      "Hygeine",
+      "Hygiene",
       
       sidebarPanel(
         awesomeRadio(
