@@ -408,6 +408,14 @@ df_summary <- df_summary %>%
     values_to = "MedianPercentage")
 ```
 
+Write `df_summary` in CSV for ease of data pulling:
+```{r eval=FALSE}
+#write.csv(df_summary, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/df_summary.csv", row.names=FALSE)
+```
+
+**ALL YEAR in range COMPARISON**
+
+Should we show sum of population or percentage?
 
 ```{r}
 #plot summary
@@ -416,11 +424,12 @@ df_summary %>%
   ggplot(aes(x=YEAR, y=MedianPercentage)) + 
     geom_col(aes(fill=Dataset), position = "dodge") + 
     theme_bw() +
+    scale_fill_brewer(palette = "Set2")+
     labs(title = "World Percentage of At Least Basic", 
-         subtitle = "Median of All Countries Percentage",
-         y = "Percentage (median)")
+         subtitle = "Median of All Countries Coverage Percentage",
+         y = "Coverage Percentage")
 ```
-**Two year comparison**
+**Two year 3 dataset comparison**
 
 Can also add REGION difference in FACET_WRAP() if wanted
 
@@ -432,7 +441,7 @@ df_summary %>%
   ggplot(aes(x=YEAR, y=MedianPercentage)) + 
     geom_col(aes(fill=Dataset), position = "dodge", width=0.5) +
     theme_bw() +
-    scale_fill_brewer(palette = "Accent")+
+    scale_fill_brewer(palette = "Set2")+
     labs(title = "Growth of World's 'At Least Basic' Service Level", 
          subtitle = "Median of All Countries Percentage",
          y = "Percentage (median)")
@@ -441,19 +450,9 @@ df_summary %>%
 color palette: https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 
 **Population Lacking of Basic Sanitation**
-```{r}
-sanitation1 %>% 
-  filter(ServiceLevel %in% c("Limited(shared)", "Unimproved", "OpenDefecation") & 
-           REGION == "NATIONAL") %>% 
-  filter(YEAR == 2000 | YEAR == 2020) %>% 
-  group_by(YEAR, ServiceLevel) %>% #combine all country
-  summarise(popul = sum(Percentage/100 * `POPULATION(THOUSANDS)`, #sum of all countries
-                           na.rm=TRUE)) #%>% #remove NA to maximize sample
-```
-
 
 ```{r}
-#sanitation summary
+#sanitation summary (can also make for water and hygiene)
 sanitation1 %>% 
   filter(ServiceLevel %in% c("Limited(shared)", "Unimproved", "OpenDefecation") & 
            REGION == "NATIONAL") %>% 
@@ -467,7 +466,8 @@ sanitation1 %>%
     scale_fill_brewer(palette = "GnBu") + #set color pallete per dataset
     theme_bw()+
   labs(title="World Population Lacking of Basic Sanitation",
-       y = "Population(millions)")
+       subtitle = "REGION = NATIONAL",
+       y = "Population (millions)")
 ```
 
 
