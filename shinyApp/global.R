@@ -12,6 +12,5 @@ df_water <- read_csv('www/datasets/water1.csv')
 df_sanitation <- read_csv('www/datasets/sanitation1.csv')
 df_hygiene <- read_csv('www/datasets/hygiene1.csv')
 
-
 df_water2 <- read_csv('www/datasets/water2.csv')
 df_sanitation2 <- read_csv('www/datasets/sanitation2.csv')

@@ -95,7 +95,7 @@ plot_line <- function(df, region, year_start, year_end){
            / 100 / 1000) %>%
     group_by(YEAR, ServiceLevel) %>%
     summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE))
-  
+
   
   ggplot(data = df_line, aes(x=YEAR, y=`POPULATION(MILLIONS)`, 
                              group=ServiceLevel, color=ServiceLevel)) +
@@ -168,5 +168,4 @@ plot_donut_country <- function(df, region, year_end, country){
 #source: https://gist.github.com/multidis/7995512 
 
 #question: how to add year?
-
 

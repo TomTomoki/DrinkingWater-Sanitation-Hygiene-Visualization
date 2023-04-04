@@ -14,7 +14,7 @@ server <- function(input, output){
       values$map_df <- df_water_map %>%
         filter(Region == values$region & Year >= values$year_start & Year <= values$year_end) %>%
         select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (more than 30 mins)`, Unimproved, `Surface water`)
-      
+
       #plotting map
       output$dw_map_plot <- renderGirafe(
         plot_map(values$map_df)
