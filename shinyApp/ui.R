@@ -102,7 +102,7 @@ ui <- fluidPage(
         plotOutput(outputId = "s_bar_plot"),
         plotOutput(outputId = "s_line_plot"),
         plotOutput(outputId = "s_donut_plot"),
-        plotOutput(outputId = "s_map_plot")
+        girafeOutput(outputId = "s_map_plot")
       )
     ),
     
@@ -152,7 +152,7 @@ ui <- fluidPage(
         plotOutput(outputId = "h_bar_plot"),
         plotOutput(outputId = "h_line_plot"),
         plotOutput(outputId = "h_donut_plot"),
-        plotOutput(outputId = "h_map_plot")
+        girafeOutput(outputId = "h_map_plot")
       )
     ),
     

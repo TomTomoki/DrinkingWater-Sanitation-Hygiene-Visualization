@@ -64,28 +64,76 @@ region_country_list <- list(
 
 
 
-plot_map <- function(df){
-  df <- df %>%
-    group_by(`COUNTRY, AREA OR TERRITORY`) %>%
-    mutate(avg_basic = mean(`At least basic`, na.rm=TRUE),
-           avg_limited = mean(`Limited (more than 30 mins)`, na.rm=TRUE),
-           avg_unimproved = mean(Unimproved, na.rm=TRUE),
-           avg_surface = mean(`Surface water`, na.rm=TRUE))
+plot_map <- function(df, df_type){
+  if (df_type == "Drinking Water"){
+    df <- df %>%
+      group_by(`COUNTRY, AREA OR TERRITORY`) %>%
+      mutate(avg_basic = mean(`At least basic`, na.rm=TRUE),
+             avg_limited = mean(`Limited (more than 30 mins)`, na.rm=TRUE),
+             avg_unimproved = mean(Unimproved, na.rm=TRUE),
+             avg_surface = mean(`Surface water`, na.rm=TRUE))
+    
+    plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
+      geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Unimproved: %.2f%%, Surface water: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_surface, 2))), 
+                               color = 'white') +
+      theme_classic() +
+      theme(
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank()) +
+      labs(title="Drinking Water Access Level - 2018 ~ 2020",
+           x ="",
+           y = "")
+    
+    girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;"))) 
+  }
   
-  plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-    geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Inimproved: %.2f%%, Surface water: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_surface, 2))), 
-                             color = 'white') +
-    theme_classic() +
-    theme(
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank()) +
-    labs(title="Drinking Water Access Level - 2018 ~ 2020",
-         x ="",
-         y = "")
+  else if (df_type == "Sanitation"){
+    df <- df %>%
+      group_by(`COUNTRY, AREA OR TERRITORY`) %>%
+      mutate(avg_basic = mean(`At least basic`, na.rm=TRUE),
+             avg_limited = mean(`Limited (shared)`, na.rm=TRUE),
+             avg_unimproved = mean(Unimproved, na.rm=TRUE),
+             avg_open = mean(`Open defecation`, na.rm=TRUE))
+    
+    plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
+      geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Unimproved: %.2f%%, Open defecation: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_open, 2))), 
+                               color = 'white') +
+      theme_classic() +
+      theme(
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank()) +
+      labs(title="Sanitation Access Level - 2018 ~ 2020",
+           x ="",
+           y = "")
+    
+    girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
+  }
   
-  girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
+  else if (df_type == "Hygiene"){
+    df <- df %>%
+      group_by(`COUNTRY, AREA OR TERRITORY`) %>%
+      mutate(avg_basic = mean(`Basic`, na.rm=TRUE),
+             avg_limited = mean(`Limited (without water or soap)`, na.rm=TRUE),
+             avg_noFacility = mean(`No facility`, na.rm=TRUE))
+    
+    plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
+      geom_polygon_interactive(aes(tooltip = sprintf("Basic: %.2f%%, Limited: %.2f%%, No facility: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_noFacility, 2))), 
+                               color = 'white') +
+      theme_classic() +
+      theme(
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank()) +
+      labs(title="Hygiene Access Level - 2018 ~ 2020",
+           x ="",
+           y = "")
+    
+    girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
+  }
 }
+
 
 plot_line <- function(df, region, year_start, year_end){
   df_line <- df %>%
@@ -103,6 +151,7 @@ plot_line <- function(df, region, year_start, year_end){
     geom_point() +
     theme_bw()
 }
+
 
 plot_donut_world <- function(df, region, year_end){
   df_donut <- df %>% 
@@ -158,14 +207,3 @@ plot_donut_country <- function(df, region, year_end, country){
     labs(title = "Country Service Level Distribution Summary")#,
   #subtitle = paste("Year: ", YEAR)) 
 }
-
-#check donut function
-#plot_donut_world(df_hygiene, "National" , 2020) #this works
-
-#cant work with multiple countries
-#plot_donut_country(df_water, "National", 2020, "Zimbabwe") 
-#question: Need to use lapply? set country as list in arguement? do.call?
-#source: https://gist.github.com/multidis/7995512 
-
-#question: how to add year?
-
