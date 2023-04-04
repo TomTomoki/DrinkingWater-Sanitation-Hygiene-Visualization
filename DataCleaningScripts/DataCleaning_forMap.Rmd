@@ -179,37 +179,6 @@ write.csv(water_data_mapping_reduced,
           row.names=FALSE)
 ```
 
-```{r}
-names(water_data_long)
-
-dput(unique(water_data_long$`SDG region`))
-
-water_data_long %>%
-  select(`SDG region`) %>%
-  unique() %>%
-  arrange() %>%
-  dput()
-
-c("Central and Southern Asia", 
-"Northern America and Europe", 
-"Western Asia and Northern Africa", 
-"Oceania", 
-"Sub-Saharan Africa", 
-"Latin America and the Caribbean", 
-"Australia and New Zealand", 
-
-"Eastern and South-Eastern Asia"
-)
-
-water_data_long %>%
-  filter(`SDG region` == "Eastern and South-Eastern Asia") %>%
-  select(`COUNTRY, AREA OR TERRITORY`) %>%
-  arrange() %>%
-  unique() %>%
-  dput()
-```
-
-
 
 # Sanitation data
 ```{r}
@@ -318,7 +287,48 @@ names(sanitation_data_urban) <- final_column_names_sanitation
 sanitation_data_long <- rbind(sanitation_data_national, sanitation_data_rural, sanitation_data_urban)
 unique(sanitation_data_long$Region)
 
-sanitation_data_long
+
+
+
+## Prepare data for mapping
+mapWorld <- map_data("world")
+
+mapWorld$ISO3 <- countrycode(mapWorld$region, "country.name", "iso3c")
+# Warning message:
+#   In countrycode_convert(sourcevar = sourcevar, origin = origin, destination = dest,  :
+#                            Some values were not matched unambiguously: Ascension Island, 
+#                          Azores, Barbuda, Bonaire, Canary Islands, Chagos Archipelago, Grenadines, 
+#                          Heard Island, Kosovo, Madeira Islands, Micronesia, Saba, Saint Martin, 
+#                          Siachen Glacier, Sint Eustatius, Virgin Islands
+
+
+# Manually assign ISO3 codes to the countries above:
+mapWorld[mapWorld$region == "Ascension Island", "ISO3"] <- "SHN"
+mapWorld[mapWorld$region == "Azores", "ISO3"] <- "AZO"
+mapWorld[mapWorld$region == "Barbuda", "ISO3"] <- "ATG"
+mapWorld[mapWorld$region == "Bonaire", "ISO3"] <- "BES"
+mapWorld[mapWorld$region == "Chagos Archipelago", "ISO3"] <- "IOT"
+mapWorld[mapWorld$region == "Grenadines", "ISO3"] <- "VCT"
+mapWorld[mapWorld$region == "Heard Island", "ISO3"] <- "HMD"
+mapWorld[mapWorld$region == "Kosovo", "ISO3"] <- "XXK"
+mapWorld[mapWorld$region == "Madeira Islands", "ISO3"] <- "MDI"
+mapWorld[mapWorld$region == "Micronesia", "ISO3"] <- "FSM"
+mapWorld[mapWorld$region == "Saba", "ISO3"] <- "BES"
+mapWorld[mapWorld$region == "Saint Martin", "ISO3"] <- "MAF"
+mapWorld[mapWorld$region == "Sint Eustatius", "ISO3"] <- "BES"
+mapWorld[mapWorld$region == "Virgin Islands", "ISO3"] <- "VIR"
+
+sanitation_data_mapping <- mapWorld%>%
+  inner_join(sanitation_data_long, by = "ISO3")
+
+
+# Reduce the data and export the data
+sanitation_data_mapping_reduced <- sanitation_data_mapping %>%
+  filter(Year >= 2018)
+
+write.csv(sanitation_data_mapping_reduced, 
+          '/Users/tomokikyotani/Local/NU/Spring2023_local/IE6600/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation_map_reduced.csv', 
+          row.names=FALSE)
 ```
 
 
@@ -398,6 +408,48 @@ hygiene_data_long <- rbind(hygiene_data_national, hygiene_data_rural, hygiene_da
 unique(hygiene_data_long$Region)
 
 hygiene_data_long
+
+
+
+## Prepare data for mapping
+mapWorld <- map_data("world")
+
+mapWorld$ISO3 <- countrycode(mapWorld$region, "country.name", "iso3c")
+# Warning message:
+#   In countrycode_convert(sourcevar = sourcevar, origin = origin, destination = dest,  :
+#                            Some values were not matched unambiguously: Ascension Island, 
+#                          Azores, Barbuda, Bonaire, Canary Islands, Chagos Archipelago, Grenadines, 
+#                          Heard Island, Kosovo, Madeira Islands, Micronesia, Saba, Saint Martin, 
+#                          Siachen Glacier, Sint Eustatius, Virgin Islands
+
+
+# Manually assign ISO3 codes to the countries above:
+mapWorld[mapWorld$region == "Ascension Island", "ISO3"] <- "SHN"
+mapWorld[mapWorld$region == "Azores", "ISO3"] <- "AZO"
+mapWorld[mapWorld$region == "Barbuda", "ISO3"] <- "ATG"
+mapWorld[mapWorld$region == "Bonaire", "ISO3"] <- "BES"
+mapWorld[mapWorld$region == "Chagos Archipelago", "ISO3"] <- "IOT"
+mapWorld[mapWorld$region == "Grenadines", "ISO3"] <- "VCT"
+mapWorld[mapWorld$region == "Heard Island", "ISO3"] <- "HMD"
+mapWorld[mapWorld$region == "Kosovo", "ISO3"] <- "XXK"
+mapWorld[mapWorld$region == "Madeira Islands", "ISO3"] <- "MDI"
+mapWorld[mapWorld$region == "Micronesia", "ISO3"] <- "FSM"
+mapWorld[mapWorld$region == "Saba", "ISO3"] <- "BES"
+mapWorld[mapWorld$region == "Saint Martin", "ISO3"] <- "MAF"
+mapWorld[mapWorld$region == "Sint Eustatius", "ISO3"] <- "BES"
+mapWorld[mapWorld$region == "Virgin Islands", "ISO3"] <- "VIR"
+
+hygiene_data_mapping <- mapWorld%>%
+  inner_join(hygiene_data_long, by = "ISO3")
+
+
+# Reduce the data and export the data
+hygiene_data_mapping_reduced <- hygiene_data_mapping %>%
+  filter(Year >= 2018)
+
+write.csv(hygiene_data_mapping_reduced, 
+          '/Users/tomokikyotani/Local/NU/Spring2023_local/IE6600/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/hygiene_map_reduced.csv', 
+          row.names=FALSE)
 ```
 
 
