@@ -1,7 +1,10 @@
+library(shinythemes)
+
 ui <- fluidPage(
   navbarPage(
-    "App Title",
+    "Water, Sanitation & Hygiene",
     id = "navbar",
+    theme = shinytheme("flatly"), #chosen theme
     
     tabPanel(
       "Drinking Water",
