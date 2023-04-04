@@ -681,20 +681,22 @@ names(sanitation2)
 ```
 
 
-Save df for future use
-```{r eval=FALSE}
-#if want to write the df in folder
-write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation1.csv", row.names=FALSE)
+Save df for future use (github)
 
-write.csv(sanitation2, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv", row.names=FALSE)
+```{r eval=FALSE}
+#edit the sanitation 2 old file
+#if want to write the df in folder
+#write.csv(sanitation1, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation1.csv", row.names=FALSE)
+
+#write.csv(sanitation2, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation2.csv", row.names=FALSE)
 ```
 
 ### Load files directly
 
 ```{r}
-sanitation1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation1.csv")
+sanitation1 <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation1.csv")
 
-sanitation2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv")
+sanitation2 <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation2.csv")
 ```
 
 ### QUESTION
