@@ -686,7 +686,7 @@ Save df for future use
 #if want to write the df in folder
 write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation1.csv", row.names=FALSE)
 
-write.csv(sanitation1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv", row.names=FALSE)
+write.csv(sanitation2, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/sanitation2.csv", row.names=FALSE)
 ```
 
 ### Load files directly
