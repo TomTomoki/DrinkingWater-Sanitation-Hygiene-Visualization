@@ -1,5 +1,10 @@
 library(ggplot2) #for troubleshooting
 
+region_list <- c("Central and Southern Asia","Northern America and Europe", 
+                 "Western Asia and Northern Africa", "Oceania", 
+                 "Sub-Saharan Africa", "Latin America and the Caribbean", 
+                 "Australia and New Zealand","Eastern and South-Eastern Asia") 
+
 region_country_list <- list(
   "Central and Southern Asia" = c("Afghanistan", "Bangladesh", "Bhutan", 
                                   "India", "Iran (Islamic Republic of)", 
@@ -61,7 +66,6 @@ region_country_list <- list(
                                        "Philippines", "Republic of Korea", "Singapore", "Thailand", 
                                        "Timor-Leste", "Viet Nam")
 )
-
 
 
 plot_map <- function(df, df_type){
@@ -152,8 +156,7 @@ plot_line <- function(df, region, year_start, year_end){
     theme_bw()
 }
 
-
-plot_donut_world <- function(df, region, year_end){
+plot_donut <- function(df, region, year_end, geo){
   df_donut <- df %>% 
     filter(ServiceLevel != "AnnualRateOfChangeInBasic" &
              REGION == toupper(region) & 
@@ -174,36 +177,67 @@ plot_donut_world <- function(df, region, year_end){
     coord_polar(theta = "y", start =0)+ #convert bar chart to polar
     # Set the limits, which is important for adding the hole
     xlim(c(0.2, hsize + 0.5))+ 
-    scale_fill_brewer(palette = "PuBuGn") + #set ifelse statement?
-    theme_void() + # Set theme_void() to remove grid lines and everything else from the plot
-    labs(title = "World Service Level Distribution Summary",
+    scale_fill_brewer(palette = "PuBuGn") + 
+    theme_void() + # Set theme_void() to remove grid lines etc from the plot
+    labs(title = paste(toupper(geo), 
+                       " Service Level Distribution Summary (", 
+                       year_end, ")"),
          subtitle = "Median Percentage from Countries with Available Values")
 }
 
 
-plot_donut_country <- function(df, region, year_end, country){
-  df_donut <- df %>%
-    filter(ServiceLevel != "AnnualRateOfChangeInBasic" &
-             REGION == toupper(region) & 
-             YEAR == year_end & #only specify latest year for clarity
-             COUNTRY %in% list(country)) %>% 
-    #!is.na(Percentage) %>% 
-    group_by(ServiceLevel, COUNTRY) %>% #add country possibilities 
-    summarise(median = median(Percentage, na.rm=TRUE)) #remove NA for calc
-  
-  hsize <- 3 #donut hole size
-  
-  ggplot(df_donut, aes(x=hsize, y=median)) +
-    geom_col(aes(fill=ServiceLevel))+
-    geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
-              position = position_stack(vjust = 0.75),
-              hjust = -0.75) +
-    coord_polar(theta = "y", start =0)+ #convert bar chart to polar
-    # Set the limits, which is important for adding the hole
-    xlim(c(0.2, hsize + 0.5))+ 
-    scale_fill_brewer(palette = "PuBuGn") + #set ifelse statement?
-    facet_wrap(~COUNTRY)+
-    theme_void() + # Set theme_void() to remove grid lines and everything else from the plot
-    labs(title = "Country Service Level Distribution Summary")#,
-  #subtitle = paste("Year: ", YEAR)) 
-}
+#to be deleted----------------------------
+# plot_donut_world <- function(df, region, year_end){
+#   df_donut <- df %>% 
+#     filter(ServiceLevel != "AnnualRateOfChangeInBasic" &
+#              REGION == toupper(region) & 
+#              YEAR == year_end) %>%  #only specify latest year for clarity
+#     group_by(ServiceLevel) %>% #combine all country/selected 
+#     summarise(median = median(Percentage,  na.rm=TRUE)) #insensitive to outlier
+#   
+#   hsize <- 3 #donut hole size
+#   
+#   ggplot(df_donut, aes(x=hsize, y=median)) +
+#     geom_col(aes(fill=ServiceLevel))+
+#     # geom_text(aes(y = median/2 + c(0, cumsum(median)[-length(median)]),
+#     #               label = paste(round(median,2), "%")),
+#     #           hjust = 0.5)+
+#     geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
+#               position = position_stack(vjust = 0.75),
+#               hjust = -0.75) +
+#     coord_polar(theta = "y", start =0)+ #convert bar chart to polar
+#     # Set the limits, which is important for adding the hole
+#     xlim(c(0.2, hsize + 0.5))+ 
+#     scale_fill_brewer(palette = "PuBuGn") + #set ifelse statement?
+#     theme_void() + # Set theme_void() to remove grid lines and everything else from the plot
+#     labs(title = "World Service Level Distribution Summary",
+#          subtitle = "Median Percentage from Countries with Available Values")
+# }
+# 
+# 
+# plot_donut_country <- function(df, region, year_end, country){
+#   df_donut <- df %>%
+#     filter(ServiceLevel != "AnnualRateOfChangeInBasic" &
+#              REGION == toupper(region) & 
+#              YEAR == year_end & #only specify latest year for clarity
+#              COUNTRY %in% list(country)) %>% 
+#     #!is.na(Percentage) %>% 
+#     group_by(ServiceLevel, COUNTRY) %>% #add country possibilities 
+#     summarise(median = median(Percentage, na.rm=TRUE)) #remove NA for calc
+#   
+#   hsize <- 3 #donut hole size
+#   
+#   ggplot(df_donut, aes(x=hsize, y=median)) +
+#     geom_col(aes(fill=ServiceLevel))+
+#     geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
+#               position = position_stack(vjust = 0.75),
+#               hjust = -0.75) +
+#     coord_polar(theta = "y", start =0)+ #convert bar chart to polar
+#     # Set the limits, which is important for adding the hole
+#     xlim(c(0.2, hsize + 0.5))+ 
+#     scale_fill_brewer(palette = "PuBuGn") + #set ifelse statement?
+#     facet_wrap(~COUNTRY)+
+#     theme_void() + # Set theme_void() to remove grid lines and everything else from the plot
+#     labs(title = "Country Service Level Distribution Summary")#,
+#   #subtitle = paste("Year: ", YEAR)) 
+# }

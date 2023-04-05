@@ -188,9 +188,9 @@ Save df for future use
 ### Load files directly
 
 ```{r}
-water1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv")
+df_water <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv")
 
-water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv")
+df_water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv")
 ```
 
 ```{r eval=FALSE}

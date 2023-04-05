@@ -2,7 +2,7 @@ library(shinythemes)
 
 ui <- fluidPage(
   navbarPage(
-    "Water, Sanitation & Hygiene",
+    "Water, Sanitation & Hygiene (WASH)",
     id = "navbar",
     theme = shinytheme("flatly"), #chosen theme
     
@@ -13,27 +13,41 @@ ui <- fluidPage(
         awesomeRadio(
           inputId = "dw_geography",
           label = "Geography:",
-          choices = c(World = "world", `Region | Country` = "region_country"),
+          choices = c(World = "world", 
+                      SDGRegion = "region", 
+                      Country = "region_country"),
           selected = "world",
           inline = TRUE,
           checkbox = TRUE
+        ),
+        
+        conditionalPanel( #added for Geo Region
+          condition = "input.dw_geography == 'region'",
+          virtualSelectInput(
+            inputId = "dw_geoRegion",
+            label = "Select SDG Region:",
+            choices = region_list,
+            selected = region_list[1],
+            showValueAsTags = TRUE,
+            search = TRUE
+          )
         ),
         
         conditionalPanel(
           condition = "input.dw_geography == 'region_country'",
           virtualSelectInput(
             inputId = "dw_region_country",
-            label = "Select Region | Country:",
+            label = "Select Country:",
             choices = region_country_list,
+            selected = region_country_list[[1]][1],
             showValueAsTags = TRUE,
-            search = TRUE,
-            multiple = TRUE
+            search = TRUE
           )
         ),
         
         radioButtons(
           inputId = "dw_region",
-          label = "Region:",
+          label = "Classification Area:",
           choices = c("National",
                       "Rural",
                       "Urban"),
@@ -49,10 +63,16 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        plotOutput(outputId = "dw_bar_plot"),
+        girafeOutput(outputId = "dw_map_plot"),
         plotOutput(outputId = "dw_line_plot"),
+        downloadButton("dw_downloadLine", "Download Line Plot", 
+                       icon = shiny::icon("download")),
         plotOutput(outputId = "dw_donut_plot"),
-        girafeOutput(outputId = "dw_map_plot")
+        downloadButton("dw_downloadDonut", "Download Donut Plot", 
+                       icon = shiny::icon("download")),
+        plotOutput(outputId = "dw_bar_plot"),
+        downloadButton("dw_downloadBar", "Download Bar Plot", 
+                       icon = shiny::icon("download"))
       )
     ),
     
@@ -63,27 +83,41 @@ ui <- fluidPage(
         awesomeRadio(
           inputId = "s_geography",
           label = "Geography:",
-          choices = c(World = "world", `Region | Country` = "region_country"),
+          choices = c(World = "world", 
+                      SDGRegion = "region", 
+                      Country = "region_country"),
           selected = "world",
           inline = TRUE,
           checkbox = TRUE
+        ),
+        
+        conditionalPanel( #added for Geo Region
+          condition = "input.s_geography == 'region'",
+          virtualSelectInput(
+            inputId = "s_geoRegion",
+            label = "Select Region:",
+            choices = region_list,
+            selected = region_list[1],
+            showValueAsTags = TRUE,
+            search = TRUE
+          )
         ),
         
         conditionalPanel(
           condition = "input.s_geography == 'region_country'",
           virtualSelectInput(
             inputId = "s_region_country",
-            label = "Select Region | Country:",
+            label = "Select Country:",
             choices = region_country_list,
+            selected = region_country_list[[1]][1],
             showValueAsTags = TRUE,
-            search = TRUE,
-            multiple = TRUE
+            search = TRUE
           )
         ),
         
         radioButtons(
           inputId = "s_region",
-          label = "Region:",
+          label = "Classification Area:",
           choices = c("National",
                       "Rural",
                       "Urban"),
@@ -99,10 +133,16 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        plotOutput(outputId = "s_bar_plot"),
+        girafeOutput(outputId = "s_map_plot"),
         plotOutput(outputId = "s_line_plot"),
+        downloadButton("s_downloadLine", "Download Line Plot", 
+                       icon = shiny::icon("download")),
         plotOutput(outputId = "s_donut_plot"),
-        girafeOutput(outputId = "s_map_plot")
+        downloadButton("s_downloadDonut", "Download Donut Plot", 
+                       icon = shiny::icon("download")),
+        plotOutput(outputId = "s_bar_plot"),
+        downloadButton("s_downloadBar", "Download Bar Plot", 
+                       icon = shiny::icon("download"))
       )
     ),
     
@@ -113,27 +153,41 @@ ui <- fluidPage(
         awesomeRadio(
           inputId = "h_geography",
           label = "Geography:",
-          choices = c(World = "world", `Region | Country` = "region_country"),
+          choices = c(World = "world", 
+                      SDGRegion = "region", 
+                      Country = "region_country"),
           selected = "world",
           inline = TRUE,
           checkbox = TRUE
+        ),
+        
+        conditionalPanel( #added for Geo Region
+          condition = "input.h_geography == 'region'",
+          virtualSelectInput(
+            inputId = "h_geoRegion",
+            label = "Select Region:",
+            choices = region_list,
+            selected = region_list[1],
+            showValueAsTags = TRUE,
+            search = TRUE
+          )
         ),
         
         conditionalPanel(
           condition = "input.h_geography == 'region_country'",
           virtualSelectInput(
             inputId = "h_region_country",
-            label = "Select Region | Country:",
+            label = "Select Country:",
             choices = region_country_list,
+            selected = region_country_list[[1]][1],
             showValueAsTags = TRUE,
-            search = TRUE,
-            multiple = TRUE
+            search = TRUE
           )
         ),
         
         radioButtons(
           inputId = "h_region",
-          label = "Region:",
+          label = "Classification Area:",
           choices = c("National",
                       "Rural",
                       "Urban"),
@@ -149,13 +203,23 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        plotOutput(outputId = "h_bar_plot"),
+        girafeOutput(outputId = "h_map_plot"),
         plotOutput(outputId = "h_line_plot"),
+        downloadButton("h_downloadLine", "Download Line Plot", 
+                       icon = shiny::icon("download")),
+        
         plotOutput(outputId = "h_donut_plot"),
-        girafeOutput(outputId = "h_map_plot")
+        downloadButton("h_downloadDonut", "Download Donut Plot", 
+                      icon = shiny::icon("download")),
+        
+        plotOutput(outputId = "h_bar_plot"),
+        downloadButton("h_downloadBar", "Download Bar Plot", 
+                       icon = shiny::icon("download"))
       )
     ),
     
-    tabPanel("Modeling")
+    tabPanel("Modeling"),
+    
+    tabPanel("About") 
   )
 )
