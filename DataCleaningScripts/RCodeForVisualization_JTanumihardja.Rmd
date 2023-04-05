@@ -188,9 +188,9 @@ Save df for future use
 ### Load files directly
 
 ```{r}
-water1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv")
+df_water <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv")
 
-water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv")
+df_water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv")
 ```
 
 ```{r eval=FALSE}
@@ -211,7 +211,7 @@ unique(water1$ServiceLevel)
 #set hole size to be the x axis so we can control the shape
 hsize <- 3
 
-water1 %>% 
+df_water %>% 
   filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
            YEAR == 2020 &
            REGION == "NATIONAL" &
@@ -230,6 +230,45 @@ water1 %>%
     theme_void()
 ```
 
+
+```{r eval=FALSE}
+df_water %>% 
+  filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
+           YEAR == 2020 &
+           REGION == "NATIONAL" &
+           COUNTRY == "Zimbabwe") #%>% #remove NA to prepare for calculation below
+  #group_by(ServiceLevel) %>% #combine all country
+  #summarise(median = median(Percentage, na.rm=TRUE)) 
+```
+
+
+```{r}
+library(ggiraph)
+
+df_donut <- df_water %>% 
+  filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
+           YEAR == 2020 &
+           REGION == "NATIONAL" &
+           !is.na(Percentage)) %>% #remove NA to prepare for calculation below
+  group_by(ServiceLevel) %>% #combine all country
+  summarise(median = median(Percentage, na.rm=TRUE)) 
+
+hsize <- 3
+
+plot <- ggplot(df_donut, aes(x=hsize, y=median, fill=ServiceLevel))+
+  geom_col_interactive(aes(tooltip = paste(ServiceLevel, ": ", round(median,2), "%")))+
+  coord_polar(theta = "y")+ #convert bar chart to polar
+  # Set the limits, which is important for adding the hole
+  xlim(c(0.2, hsize + 0.5))+
+  theme_void() +
+  scale_fill_brewer(palette = "PuBuGn") +
+  labs(title="world median dw")
+  
+
+girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
+```
+
+
 **Per country**
 
 ```{r eval=FALSE}
@@ -241,29 +280,34 @@ unique(water1$COUNTRY)
 #set hole size to be the x axis so we can control the shape
 hsize <- 3
 
-df.plot <- water1 %>% 
+df.plot <- df_water %>% 
   filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
            YEAR == 2020 &
            REGION == "NATIONAL" &
-           COUNTRY %in% c("Indonesia", "Japan", "China") & #facet wrap
-           !is.na(Percentage)) %>% #remove NA to prepare for calculation below
+           COUNTRY == "Zimbabwe") %>%  #%in% c("Indonesia", "Japan", "China") & #facet wrap
+           #remove NA to prepare for calculation below
   group_by(ServiceLevel, COUNTRY, YEAR) %>% #combine all country
-  summarise(median = median(Percentage)) 
+  summarise(median = median(Percentage, na.rm = TRUE)) 
 
-plot <- df.plot %>% 
+plot_c <- df.plot %>% 
   ggplot(aes(x=hsize, y=median))+
     geom_col(aes(fill=ServiceLevel))+
+    # geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
+    #         position = position_dodge(1)) +
     geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
-            position = position_dodge(1)) +
+              position = position_stack(vjust = 0.75),
+              hjust = -0.75) +
     coord_polar(theta = "y")+ #convert bar chart to polar
       # Set the limits, which is important for adding the hole
     xlim(c(0.2, hsize + 0.5))+ #(c(2018.5, 2020.5)) +
     scale_fill_brewer(palette = "PuBuGn") + #set color pallete per dataset
         # Set theme_void() to remove grid lines and everything else from the plot
-    facet_wrap(~COUNTRY)+
-    theme_void()
+    #facet_wrap(~COUNTRY)+
+    theme_void()+
+    labs(title = "Service Level Distribution Summary",
+         subtitle = "Median Percentage of selected Country")
 
-plot
+plot_c
 ```
 
 ```{r}
