@@ -31,8 +31,8 @@ server <- function(input, output){
         select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (more than 30 mins)`, Unimproved, `Surface water`)
           
       #plotting map
-      #output$s_map_plot <- NULL
-      #output$h_map_plot <- NULL
+      output$s_map_plot <- NULL
+      output$h_map_plot <- NULL
       output$dw_map_plot <- renderGirafe(
         plot_map(values$map_df, "Drinking Water")
       )
@@ -117,8 +117,8 @@ server <- function(input, output){
         select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (shared)`, Unimproved, `Open defecation`)
       
       #plotting map
-      #output$dw_map_plot <- NULL
-      #output$h_map_plot <- NULL
+      output$dw_map_plot <- NULL
+      output$h_map_plot <- NULL
       output$s_map_plot <- renderGirafe(
         plot_map(values$map_df, "Sanitation")
       )
@@ -195,29 +195,8 @@ server <- function(input, output){
         }
       )
       
-      #to be deleted----------------------------
-      # #plotting line chart
-      # output$s_line_plot <- renderPlot({
-      #   plot_line(values$df, values$region, values$year_start, values$year_end)
-      # })
-      # 
-      # #plotting donut chart
-      # country <- input$s_region_country #for conditional statement below
-      # print(list(input$s_region_country)) #check values for troubleshooting
-      # #view(values$df) #for troubleshooting
-      # 
-      # if(is.null(country)){ #conditional statement
-      #   output$s_donut_plot <- renderPlot({
-      #     plot_donut_world(values$df, values$region, values$year_end)
-      #   })
-      # } else {
-      #   output$s_donut_plot <- renderPlot({
-      #     plot_donut_country(values$df, values$region, values$year_end, country)
-      #   }) #CANNOT SHOW faceting?
-      # }
-      
     } else if (input$navbar == "Hygiene") {
-      values$geo <- input$s_geography
+      values$geo <- input$h_geography
       values$region <- input$h_region
       values$year_start <- input$h_year[1]
       values$year_end <- input$h_year[2]
@@ -227,25 +206,25 @@ server <- function(input, output){
         select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `Basic`, `Limited (without water or soap)`, `No facility`)
       
       #plotting map
-      #output$dw_map_plot <- NULL
-      #output$s_map_plot <- NULL
+      output$dw_map_plot <- NULL
+      output$s_map_plot <- NULL
       output$h_map_plot <- renderGirafe(
         plot_map(values$map_df, "Hygiene")
       )
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){
-        values$geoRegion <- input$s_geoRegion
+        values$geoRegion <- input$h_geoRegion
         values$df <- df_hygiene %>% filter(SDGRegion == values$geoRegion)
-        values$geoTitle <- input$s_geoRegion #for plot title
+        values$geoTitle <- input$h_geoRegion #for plot title
         
         print(values$geoRegion) #troubleshoot
         print(values$geoTitle) #troubleshoot
         
       } else if(values$geo == "region_country"){
-        values$country <- input$s_region_country
+        values$country <- input$h_region_country
         values$df <- df_hygiene %>% filter(COUNTRY == values$country)
-        values$geoTitle <- input$s_region_country #for plot title
+        values$geoTitle <- input$h_region_country #for plot title
         
         print(values$country)  #troubleshoot
         print(values$geoTitle) #troubleshoot
@@ -304,26 +283,6 @@ server <- function(input, output){
         }
       )
       
-      #to be deleted----------------------------
-      # #plotting line chart
-      # output$h_line_plot <- renderPlot({
-      #   plot_line(values$df, values$region, values$year_start, values$year_end)
-      # })
-      # 
-      # #plotting donut chart
-      # country <- input$h_region_country #for conditional statement below
-      # print(list(input$h_region_country)) #check values for troubleshooting
-      # #view(values$df) #for troubleshooting
-      # 
-      # if(is.null(country)){ #conditional statement
-      #   output$h_donut_plot <- renderPlot({
-      #     plot_donut_world(values$df, values$region, values$year_end)
-      #   })
-      # } else {
-      #   output$h_donut_plot <- renderPlot({
-      #     plot_donut_country(values$df, values$region, values$year_end, country)
-      #   }) #CANNOT SHOW faceting?
-      # }
     }
   })
 }
