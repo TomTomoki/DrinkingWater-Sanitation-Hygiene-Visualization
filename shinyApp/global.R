@@ -3,6 +3,7 @@ library(shinyWidgets)
 library(tidyverse)
 library(ggiraph)
 library(shinythemes)
+library(fontawesome)
 
 source("www/functions/helper_functions.R")
 

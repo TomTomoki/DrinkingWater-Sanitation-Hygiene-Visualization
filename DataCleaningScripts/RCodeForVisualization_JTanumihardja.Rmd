@@ -271,15 +271,13 @@ girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;strok
 
 **Per country**
 
+source: 
+
+* https://r-graph-gallery.com/128-ring-or-donut-plot.html 
+* https://r-charts.com/part-whole/donut-chart-ggplot2/ 
+* https://stackoverflow.com/questions/45445904/weird-cumsum-not-working-on-dplyr 
+
 ```{r eval=FALSE}
-unique(water1$COUNTRY)
-```
-
-
-```{r}
-#set hole size to be the x axis so we can control the shape
-hsize <- 3
-
 df.plot <- df_water %>% 
   filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
            YEAR == 2020 &
@@ -287,23 +285,80 @@ df.plot <- df_water %>%
            COUNTRY == "Zimbabwe") %>%  #%in% c("Indonesia", "Japan", "China") & #facet wrap
            #remove NA to prepare for calculation below
   group_by(ServiceLevel, COUNTRY, YEAR) %>% #combine all country
-  summarise(median = median(Percentage, na.rm = TRUE)) 
+  summarise(median = median(Percentage, na.rm = TRUE)) %>% 
+  ungroup()
+
+#add column to calculate the label position
+df.plot <- df.plot %>% 
+  arrange(-desc(median)) %>% 
+  mutate(ymax = cumsum(median),
+         ymin = c(0, head(ymax, n=-1)),
+         labelPos = (ymin + ymax)/2#,
+         #label = paste0(ServiceLevel, ": \n", round(median,2), "%")
+         ) #%>% 
+
+df.plot
+```
+
+```{r}
+plot_c <- df.plot %>% 
+  ggplot(aes(ymax = ymax, ymin = ymin, xmin = 2.5, xmax=4))+ 
+    geom_rect(aes(fill=ServiceLevel))+
+    #scale_y_reverse()+
+    geom_text(x = 4, aes(y = labelPos,
+                  label = paste0(ServiceLevel, ": \n", round(median,2), "%")),
+                  size = 4)+ #,
+                  #color = ServiceLevel)+ #reduce decimal on value
+              #position = position_stack(vjust = 0.5))+#,
+              #hjust = -0.75) +
+    coord_polar(theta = "y")+ #convert bar chart to polar
+    
+      # Set the limits, which is important for adding the hole
+    xlim(c(-1,4))+ #0.2, hsize + 0.5))+ #(c(2018.5, 2020.5)) +
+    scale_fill_brewer(palette = "PuBuGn") + #set color pallete per dataset
+        # Set theme_void() to remove grid lines and everything else from the plot
+    #facet_wrap(~COUNTRY)+
+    theme_void()+
+    labs(title = "Service Level Distribution Summary",
+         subtitle = "Median Percentage of selected Country")+
+    theme(legend.position = "none")
+
+plot_c
+```
+
+
+```{r}
+#set hole size to be the x axis so we can control the shape
+hsize <- 3
+
+# df.plot <- df_water %>% 
+#   filter(ServiceLevel != "AnnualRateOfChangeInBasic" & 
+#            YEAR == 2020 &
+#            REGION == "NATIONAL" &
+#            COUNTRY == "Zimbabwe") %>%  #%in% c("Indonesia", "Japan", "China") & #facet wrap
+#            #remove NA to prepare for calculation below
+#   group_by(ServiceLevel, COUNTRY, YEAR) %>% #combine all country
+#   summarise(median = median(Percentage, na.rm = TRUE)) %>%
+#   ungroup() %>% 
+#   mutate(cumsum = cumsum(median))
+#add cummulative here for label
 
 plot_c <- df.plot %>% 
-  ggplot(aes(x=hsize, y=median))+
-    geom_col(aes(fill=ServiceLevel))+
-    # geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
-    #         position = position_dodge(1)) +
-    geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
-              position = position_stack(vjust = 0.75),
-              hjust = -0.75) +
+  ggplot()+ 
+    geom_col(aes(x=hsize, y=median, fill=ServiceLevel))+
+    #scale_y_reverse()+
+    geom_text(aes(x = hsize, y = labelPos, 
+                  label = paste(round(median,2), "%")))+ #reduce decimal on value
+              #position = position_stack(vjust = 0.5))+#,
+              #hjust = -0.75) +
     coord_polar(theta = "y")+ #convert bar chart to polar
+    
       # Set the limits, which is important for adding the hole
     xlim(c(0.2, hsize + 0.5))+ #(c(2018.5, 2020.5)) +
     scale_fill_brewer(palette = "PuBuGn") + #set color pallete per dataset
         # Set theme_void() to remove grid lines and everything else from the plot
     #facet_wrap(~COUNTRY)+
-    theme_void()+
+    #theme_void()+
     labs(title = "Service Level Distribution Summary",
          subtitle = "Median Percentage of selected Country")
 
