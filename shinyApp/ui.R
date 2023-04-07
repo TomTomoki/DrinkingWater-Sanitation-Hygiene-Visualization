@@ -10,6 +10,49 @@ ui <- fluidPage(
     
     ##Drinking Water Tab---------------------------------------------------
     tabPanel(
+      "Summary",
+      
+      sidebarPanel(
+        width = 3,
+        
+        awesomeRadio(
+          inputId = "summary_dataset",
+          label = "Dataset:",
+          choices = c(DrinkingWater = "DrinkingWater", 
+                      Sanitation = "Sanitation", 
+                      Hygiene = "Hygiene"),
+          selected = "DrinkingWater",
+          inline = TRUE,
+          checkbox = TRUE
+        ),
+        
+        radioButtons(
+          inputId = "summary_region",
+          label = "Classification Area:",
+          choices = c("National",
+                      "Rural",
+                      "Urban"),
+          selected = "National" 
+        ),
+        
+        radioButtons(
+          inputId = "summary_year",
+          label = "Year:",
+          choices = c("2020",
+                      "2019",
+                      "2018"),
+          selected = "2020" 
+        )
+      ),
+      
+      mainPanel(
+        #width = 9,
+        
+        girafeOutput(outputId = "summary_map_plot")
+      )
+    ),
+    
+    tabPanel(
       "Drinking Water",
       icon = icon("glass-water-droplet"), #e4f4 https://fontawesome.com/icons/glass-water?f=classic&s=solid
        #https://github.com/rstudio/fontawesome 
@@ -78,8 +121,6 @@ ui <- fluidPage(
           p("- Unimproved = 'Drinking water from an unprotected dug well or unprotected spring'"),
           p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'"),
           br(),
-          br(),
-          girafeOutput(outputId = "dw_map_plot"),
           br(),
           plotOutput(outputId = "dw_line_plot"),
           downloadButton("dw_downloadLine", "Download Line Plot", 
@@ -165,9 +206,6 @@ ui <- fluidPage(
           p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'"),
           br(),
           br(),
-          girafeOutput(outputId = "s_map_plot"),
-          br(),
-          br(),
           plotOutput(outputId = "s_line_plot"),
           downloadButton("s_downloadLine", "Download Line Plot", 
                          icon = shiny::icon("download")),
@@ -180,7 +218,6 @@ ui <- fluidPage(
           downloadButton("s_downloadBar", "Download Bar Plot", 
                          icon = shiny::icon("download"))
         )
-        
       )
     ),
     
@@ -252,8 +289,6 @@ ui <- fluidPage(
           p("- Limited = 'Availability of handwashing facility on premises without soap and water'"),
           p("- No Facility = 'No handwashing facility on premises'"),
           br(),
-          br(),
-          girafeOutput(outputId = "h_map_plot"),
           br(),
           plotOutput(outputId = "h_line_plot"),
           downloadButton("h_downloadLine", "Download Line Plot", 
