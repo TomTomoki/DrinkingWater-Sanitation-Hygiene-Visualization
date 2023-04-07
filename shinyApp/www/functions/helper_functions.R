@@ -82,14 +82,14 @@ plot_map <- function(df, df_type){
                                color = 'white') +
       theme_classic() +
       theme(
+        axis.line=element_blank(),
         axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank()) +
-      labs(title="Drinking Water Access Level - 2018 ~ 2020",
+      labs(title="Drinking Water Access Level",
            x ="",
            y = "")
     
-    girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;"))) 
   }
   
   else if (df_type == "Sanitation"){
@@ -105,14 +105,14 @@ plot_map <- function(df, df_type){
                                color = 'white') +
       theme_classic() +
       theme(
+        axis.line=element_blank(),
         axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank()) +
-      labs(title="Sanitation Access Level - 2018 ~ 2020",
+      labs(title="Sanitation Access Level",
            x ="",
            y = "")
     
-    girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
   }
   
   else if (df_type == "Hygiene"){
@@ -127,15 +127,18 @@ plot_map <- function(df, df_type){
                                color = 'white') +
       theme_classic() +
       theme(
+        axis.line=element_blank(),
         axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank()) +
-      labs(title="Hygiene Access Level - 2018 ~ 2020",
+      labs(title="Hygiene Access Level",
            x ="",
            y = "")
     
-    girafe(ggobj = plot, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;")))
   }
+  
+  girafe(ggobj = plot, width_svg=9, height_svg=3, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;"))) 
+  
 }
 
 
