@@ -92,7 +92,7 @@ server <- function(input, output){
       #view(values$df) #for troubleshooting
       
       #plotting line chart
-      output$dw_line_plot <- renderPlot({
+      output$dw_line_plot <- renderPlotly({
         plot_line(values$df, values$region, values$year_start, values$year_end)
       })
       
@@ -161,7 +161,7 @@ server <- function(input, output){
       #view(values$df) #for troubleshooting
       
       #plotting line chart
-      output$s_line_plot <- renderPlot({
+      output$s_line_plot <- renderPlotly({
         plot_line(values$df, values$region, values$year_start, values$year_end)
       })
       
@@ -232,7 +232,7 @@ server <- function(input, output){
       #view(values$df) #for troubleshooting
       
       #plotting line chart
-      output$h_line_plot <- renderPlot({
+      output$h_line_plot <- renderPlotly({
         plot_line(values$df, values$region, values$year_start, values$year_end)
       })
       

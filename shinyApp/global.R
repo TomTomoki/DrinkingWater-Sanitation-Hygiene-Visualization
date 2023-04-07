@@ -4,6 +4,7 @@ library(tidyverse)
 library(ggiraph)
 library(shinythemes)
 library(fontawesome)
+library(plotly)
 
 source("www/functions/helper_functions.R")
 
