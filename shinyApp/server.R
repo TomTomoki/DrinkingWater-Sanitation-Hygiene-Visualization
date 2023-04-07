@@ -15,27 +15,53 @@ server <- function(input, output){
                            year_start = NULL,
                            year_end = NULL,
                            map_df = NULL,
+                           map_year = NULL,
                            df = NULL,
                            df2 = NULL,
                            geoTitle = NULL)
   
   observe({
-    if (input$navbar == "Drinking Water") {
+    if (input$navbar == "Summary") {
+      values$region <- input$summary_region
+      values$map_year <- input$summary_year
+      
+      if (input$summary_dataset == "DrinkingWater"){
+        values$map_df <- df_water_map %>%
+          filter(Region == values$region & Year == values$map_year) %>%
+          select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (more than 30 mins)`, Unimproved, `Surface water`)
+      
+        #plotting map
+        output$summary_map_plot <- renderGirafe(
+          plot_map(values$map_df, "Drinking Water")
+        )
+      
+      } else if (input$summary_dataset == "Sanitation") {
+        values$map_df <- df_sanitation_map %>%
+          filter(Region == values$region & Year == values$map_year) %>%
+          select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (shared)`, Unimproved, `Open defecation`)
+        
+        #plotting map
+        output$summary_map_plot <- renderGirafe(
+          plot_map(values$map_df, "Sanitation")
+        )
+        
+      } else if (input$summary_dataset == "Hygiene") {
+        values$map_df <- df_hygiene_map %>%
+          filter(Region == values$region & Year == values$map_year) %>%
+          select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `Basic`, `Limited (without water or soap)`, `No facility`)
+        
+        #plotting map
+        output$summary_map_plot <- renderGirafe(
+          plot_map(values$map_df, "Hygiene")
+        )
+        
+      }
+      
+    } else if (input$navbar == "Drinking Water") {
       values$geo <- input$dw_geography
       values$region <- input$dw_region
       values$year_start <- input$dw_year[1]
       values$year_end <- input$dw_year[2]
-      
-      values$map_df <- df_water_map %>%
-        filter(Region == values$region & Year >= values$year_start & Year <= values$year_end) %>%
-        select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (more than 30 mins)`, Unimproved, `Surface water`)
-          
-      #plotting map
-      output$s_map_plot <- NULL
-      output$h_map_plot <- NULL
-      output$dw_map_plot <- renderGirafe(
-        plot_map(values$map_df, "Drinking Water")
-      )
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){
@@ -111,17 +137,6 @@ server <- function(input, output){
       values$region <- input$s_region
       values$year_start <- input$s_year[1]
       values$year_end <- input$s_year[2]
-      
-      values$map_df <- df_sanitation_map %>%
-        filter(Region == values$region & Year >= values$year_start & Year <= values$year_end) %>%
-        select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (shared)`, Unimproved, `Open defecation`)
-      
-      #plotting map
-      output$dw_map_plot <- NULL
-      output$h_map_plot <- NULL
-      output$s_map_plot <- renderGirafe(
-        plot_map(values$map_df, "Sanitation")
-      )
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){
@@ -200,17 +215,6 @@ server <- function(input, output){
       values$region <- input$h_region
       values$year_start <- input$h_year[1]
       values$year_end <- input$h_year[2]
-      
-      values$map_df <- df_hygiene_map %>%
-        filter(Region == values$region & Year >= values$year_start & Year <= values$year_end) %>%
-        select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `Basic`, `Limited (without water or soap)`, `No facility`)
-      
-      #plotting map
-      output$dw_map_plot <- NULL
-      output$s_map_plot <- NULL
-      output$h_map_plot <- renderGirafe(
-        plot_map(values$map_df, "Hygiene")
-      )
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){

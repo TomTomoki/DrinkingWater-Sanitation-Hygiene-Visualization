@@ -7,6 +7,49 @@ ui <- fluidPage(
     theme = shinytheme("flatly"), #chosen theme
     
     tabPanel(
+      "Summary",
+      
+      sidebarPanel(
+        width = 3,
+        
+        awesomeRadio(
+          inputId = "summary_dataset",
+          label = "Dataset:",
+          choices = c(DrinkingWater = "DrinkingWater", 
+                      Sanitation = "Sanitation", 
+                      Hygiene = "Hygiene"),
+          selected = "DrinkingWater",
+          inline = TRUE,
+          checkbox = TRUE
+        ),
+        
+        radioButtons(
+          inputId = "summary_region",
+          label = "Classification Area:",
+          choices = c("National",
+                      "Rural",
+                      "Urban"),
+          selected = "National" 
+        ),
+        
+        radioButtons(
+          inputId = "summary_year",
+          label = "Year:",
+          choices = c("2020",
+                      "2019",
+                      "2018"),
+          selected = "2020" 
+        )
+      ),
+      
+      mainPanel(
+        #width = 9,
+        
+        girafeOutput(outputId = "summary_map_plot")
+      )
+    ),
+    
+    tabPanel(
       "Drinking Water",
       
       sidebarPanel(
@@ -63,7 +106,6 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        girafeOutput(outputId = "dw_map_plot"),
         plotOutput(outputId = "dw_line_plot"),
         downloadButton("dw_downloadLine", "Download Line Plot", 
                        icon = shiny::icon("download")),
@@ -133,7 +175,6 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        girafeOutput(outputId = "s_map_plot"),
         plotOutput(outputId = "s_line_plot"),
         downloadButton("s_downloadLine", "Download Line Plot", 
                        icon = shiny::icon("download")),
@@ -203,7 +244,6 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        girafeOutput(outputId = "h_map_plot"),
         plotOutput(outputId = "h_line_plot"),
         downloadButton("h_downloadLine", "Download Line Plot", 
                        icon = shiny::icon("download")),
