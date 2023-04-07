@@ -171,8 +171,7 @@ plot_lollipop <- function(df, df_type, region, year){
     
   } else if (df_type == "Sanitation"){
     df_lollipop <- df %>%
-      filter(REGION == toupper(region) & ServiceLevel == "OpenDefecation") %>%
-      #filter(REGION == toupper(region) & YEAR == year & ServiceLevel == "OpenDefecation") %>%
+      filter(REGION == toupper(region) & YEAR == year & ServiceLevel == "OpenDefecation") %>%
       arrange(desc(Percentage)) %>%
       top_n(10)
     
