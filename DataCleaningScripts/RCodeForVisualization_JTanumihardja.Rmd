@@ -36,7 +36,7 @@ file_path <- "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment
 ## Water (TBD)
 
 ```{r, cache=TRUE}
-water_raw <- read_excel(file_path, sheet = "Sanitation")
+water_raw <- read_excel(file_path, sheet = "Water")
 ```
 
 ```{r , cache=TRUE}
@@ -612,7 +612,7 @@ column_names <- c(
   "URBAN_AtLeastBasic",
   "URBAN_Limited(shared)",
   "URBAN_Unimproved",
-  "URBAN_Open defecation",
+  "URBAN_OpenDefecation",
   "URBAN_AnnualRateOfChangeInBasic",
   "URBAN_AnnualRateOfChangeInOpenDefecation",
   "NATIONAL_SafelyManaged_Total",
@@ -651,63 +651,6 @@ sanitation <- sanitation %>% rename_with(~column_names)
 sapply(sanitation, class)
 ```
 
-```{r eval=FALSE}
-column_names <- c(
-  "COUNTRY",
-  "ISO3",
-  "YEAR",
-  "POPULATION(THOUSANDS)",
-  "%URBAN",
-  "NATIONAL_AtLeastBasic",
-  "NATIONAL_Limited(shared)",
-  "NATIONAL_Unimproved",
-  "NATIONAL_OpenDefecation",
-  "NATIONAL_AnnualRateOfChangeInBasic",
-  "NATIONAL_AnnualRateOfChangeInOpenDefecation",
-  "RURAL_AtLeastBasic",
-  "RURAL_Limited(shared)",
-  "RURAL_Unimproved",
-  "RURAL_OpenDefecation",
-  "RURAL_AnnualRateOfChangeInBasic",
-  "RURAL_AnnualRateOfChangeInOpenDefecation",
-  "URBAN_AtLeastBasic",
-  "URBAN_Limited(shared)",
-  "URBAN_Unimproved",
-  "URBAN_Open defecation",
-  "URBAN_AnnualRateOfChangeInBasic",
-  "URBAN_AnnualRateOfChangeInOpenDefecation",
-  "NATIONAL_SafelyManaged_Total",
-  "NATIONAL_SafelyManaged_DisposedInSitu",
-  "NATIONAL_SafelyManaged_EmptiedAndTreated",
-  "NATIONAL_SafelyManaged_WastewaterTreated",
-  "NATIONAL_SafelyManaged_TotalAnnualRateOfChange",
-  "NATIONAL_FacilityType_LatrinesAndOthers",
-  "NATIONAL_FacilityType_SepticTanks",
-  "NATIONAL_FacilityType_SewerConnections",
-  "RURAL_SafelyManaged_Total",
-  "RURAL_SafelyManaged_DisposedInSitu",
-  "RURAL_SafelyManaged_EmptiedAndTreated",
-  "RURAL_SafelyManaged_WastewaterTreated",
-  "RURAL_SafelyManaged_TotalAnnualRateOfChange",
-  "RURAL_FacilityType_LatrinesAndOthers",
-  "RURAL_FacilityType_SepticTanks",
-  "RURAL_FacilityType_SewerConnections",
-  "URBAN_SafelyManaged_Total",
-  "URBAN_SafelyManaged_DisposedInSitu",
-  "URBAN_SafelyManaged_EmptiedAndTreated",
-  "URBAN_SafelyManaged_WastewaterTreated",
-  "URBAN_SafelyManaged_TotalAnnualRateOfChange",
-  "URBAN_FacilityType_LatrinesAndOthers",
-  "URBAN_FacilityType_SepticTanks",
-  "URBAN_FacilityType_SewerConnections",
-  "SI",
-  "SDGRegion", 
-  "WHORegion", 
-  "UNICEFProgrammingRegion", 
-  "UNICEFReportingRegion"
-)
-
-```
 
 ### Tidying data
 
@@ -777,6 +720,16 @@ names(sanitation1)
 ```
 ```{r eval=FALSE}
 names(sanitation2)
+```
+
+```{r}
+#check ServiceLevels
+unique(sanitation1$ServiceLevel)
+```
+
+```{r}
+#check ServiceLevels
+unique(sanitation2$CriteriaDetails)
 ```
 
 
@@ -1040,7 +993,7 @@ write to df:
 ### Load files directly
 
 ```{r}
-hygiene1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv")
+df_hygiene <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv")
 ```
 
 #### WHO example
@@ -1279,6 +1232,287 @@ hygiene_data2 %>%
 #  group_by(FacilityType, Year) %>% #combine all country
 #  summarise(median = median(Percentage)) %>% 
 #  ggplot(aes(x=hsize, y=median))+
+```
+
+##Forecast
+
+source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
+
+No seasonal or cyclic pattern, so choose: Exponential smoothing
+
+```{r}
+#install.packages("forecast")
+library(forecast)
+```
+
+```{r}
+library(forecast)
+
+df_forecast <- df_water %>%
+    filter(REGION == "NATIONAL" &
+             ServiceLevel != "AnnualRateOfChangeInBasic") %>%
+    mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
+           / 100 / 1000) %>%
+    group_by(YEAR, ServiceLevel) %>%
+    summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE)) %>% 
+    ungroup()
+
+ggplot(data = df_forecast, aes(x=YEAR, y=`POPULATION(MILLIONS)`,
+                             group=ServiceLevel, color=ServiceLevel)) +
+    geom_line() +
+    geom_point() +
+    theme_bw()
+```
+
+```{r}
+class(df_forecast)  
+```
+
+
+```{r}
+df_forecast_wide <- df_forecast %>% 
+  pivot_wider(names_from = ServiceLevel, 
+              values_from = `POPULATION(MILLIONS)`)
+```
+
+
+### Convert df to ts
+
+source: https://www.statology.org/r-convert-data-frame-to-time-series/ 
+
+```{r fig.height=11}
+df_forecast_basic <- df_forecast %>% 
+  filter(ServiceLevel == "AtLeastBasic") %>% 
+  select(!ServiceLevel)
+
+class(df_forecast_basic)
+```
+
+```{r}
+library(zoo)
+tseries <- read.zoo(df_forecast_basic)
+
+tseries 
+```
+
+```{r}
+class(tseries)
+```
+
+```{r}
+#convert to ts object
+tseries_ts <- as.ts(tseries)
+
+#view time series object
+tseries_ts
+
+#view class
+class(tseries_ts)
+```
+
+**convert all dataset to ts**
+
+```{r}
+#convert to timeseries with multiple variables
+tseries_dw <-read.zoo(df_forecast_wide)
+class(tseries_dw)
+
+tseries_dw_ts <- as.ts(df_forecast_wide)
+class(tseries_dw_ts)
+#why doesnt keep multiple var?
+```
+https://stackoverflow.com/questions/29046311/how-to-convert-dataframe-into-time-series
+
+```{r}
+Canada
+```
+
+
+```{r}
+tseries_dw_ts
+```
+
+
+### TS decomposition
+
+source: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r 
+
+```{r}
+#create time series decomposition with frequecy = 5 years
+tsdata_basic <- ts(tseries_ts, frequency = 5) 
+ddata_basic <- decompose(tsdata_basic, "additive") #predicted to be additive (verified)
+plot(ddata_basic)
+```
+
+Obvious increasing trend as expected. There is seasonal trend if we see the graph but the y-scale is actually only 0.005 range! Therefore, no obvious seasonal or random trend.
+
+**Plot individually** 
+
+We see increasing trend about 1.5 billion people in 5 years. Less steep recently.
+
+```{r}
+plot(ddata_basic$trend)
+```
+
+
+```{r}
+plot(tseries_ts)
+abline(reg=lm(tseries_ts~time(tseries_ts)), 
+       col = "blue")
+```
+
+**Create box plot to check cycle**
+
+No cyclic trend found.
+
+```{r}
+boxplot(tseries_ts~cycle(tseries_ts))#, 
+                         # xlab="Year", ylab = "Population (millions)", 
+                         # main = "Drinkin Water At least basic service level between 2000-2020"))
+```
+
+### Exponential Smoothing
+
+Use state space model, source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
+
+```{r}
+#Create samples
+training=window(tseries_ts, start = 2000, end = 2015)
+validation=window(tseries_ts, start = 2016)
+```
+
+```{r eval=FALSE}
+training
+```
+
+```{r}
+ets_model = ets(training, allow.multiplicative.trend = TRUE)
+summary(ets_model)
+```
+ETS(A,A,N) means the exponential smoothing model (ETS) has:
+
+* error type "A" = additive
+* trend type "A" = additive
+* season type "N" = none.
+
+As predicted before, the dataset only have additive trend with no seasonality. 
+
+source: https://www.rdocumentation.org/packages/forecast/versions/8.21/topics/ets 
+
+```{r}
+library(ModelMetrics)
+ets_forecast = forecast(ets_model, h=length(validation))
+
+paste("Validation RMSE: ", round(rmse(validation, ets_forecast$mean),2))
+```
+RMSE is not too bad considering mean are mainly in thousands.
+
+```{r}
+plot(ets_forecast, xlab="Year", ylab="Population(millions)")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+summary(ets_forecast)
+```
+
+
+### ARIMA
+
+```{r}
+model_arima <- auto.arima(tseries_ts)
+
+model_arima
+```
+```{r}
+#plot residuals
+plot.ts(model_arima$residuals)
+```
+
+```{r}
+#forecast for 10 years to see if the 2030 goal is achieved
+dwforecast <- forecast(model_arima, #use arima to include everything
+                       level=c(95), #set CI = 95%
+                       h=10) #10 years
+
+plot(dwforecast)
+```
+
+Validate the Model by Selecting Lag Values
+
+```{r}
+Box.test(model_arima$resid, lag=10, type="Ljung-Box")
+```
+
+#### Plotting in ggfortify
+
+source: https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_ts.html 
+
+```{r}
+#install.packages("ggfortify")
+#install.packages("vars")
+```
+
+
+```{r}
+library(ggfortify)
+autoplot(tseries_ts)+
+  theme_bw()+
+  labs(x="YEAR", y ="Population(millions)")
+```
+
+```{r}
+#plot in ggplot using ggfortify
+autoplot(dwforecast, predict.colour = 'blue',
+         predict.linetype = 'dotdash', predict.size = 1,
+         conf.int = TRUE, label=TRUE)+
+  # geom_text(aes(y=model_arima$mean))+
+  # annotate("text", label = paste("Population in 2023 :", 
+  #                                round(dwforecast$mean[10]/1000, 2)),
+  #          x = 2030, y = 8000, color = "blue")
+  theme_bw()+
+  labs(title="Total population with 'at least basic' drinking water service",
+       subtitle= paste("2030's total population with 'at least basic' ARIMA prediction=",
+                       round(dwforecast$mean[10]/1000, 2), "millions"),
+       x="YEAR", y ="Population(millions)")
+```
+
+```{r}
+ggtsdiag(model_arima)
+```
+source:
+https://rpubs.com/sinhrks/plot_tsstats 
+https://rpubs.com/sinhrks/plot_ts
+https://rpubs.com/sinhrks/basics
+
+
+```{r}
+tseries_ts %>% 
+  decompose(type ="additive") %>% 
+  autoplot()
+```
+
+```{r}
+round(dwforecast$mean[10]/1000, 2)
+```
+
+#### using vars
+
+```{r}
+library(vars)
+autoplot(tseries_dw_ts)
+```
+
+```{r}
+tseries_dw
 ```
 
 

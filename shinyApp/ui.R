@@ -54,6 +54,7 @@ ui <- fluidPage(
       )
     ),
     
+    ##Drinking Water Tab---------------------------------------------------
     tabPanel(
       "Drinking Water",
       icon = icon("glass-water-droplet"), #e4f4 https://fontawesome.com/icons/glass-water?f=classic&s=solid
@@ -115,9 +116,9 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        fluidPage(
-          h2("Drinking Water"),
-          h4("Drinking water service can be classified into 4 levels (from best to worst): "),
+        wellPanel(
+          h3(icon("glass-water-droplet"), "Drinking Water"),
+          strong("Drinking water service can be classified into 4 levels (from best to worst): "),
           p("- At least basic = 'Drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip, including queuing'"),
           p("- Limited(>30min) = 'Drinking water from an improved source for which collection time exceeds 30 minutes for a round trip, including queuing'"),
           p("- Unimproved = 'Drinking water from an unprotected dug well or unprotected spring'"),
@@ -128,7 +129,9 @@ ui <- fluidPage(
           downloadButton("dw_downloadLine", "Download Line Plot", 
                        icon = shiny::icon("download")),
           br(),
+          br(),
           girafeOutput(outputId = "dw_donut_plot"),
+          br(),
           br(),
           plotOutput(outputId = "dw_bar_plot"),
           downloadButton("dw_downloadBar", "Download Bar Plot", 
@@ -199,9 +202,9 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        fluidPage(
-          h2("Sanitation"),
-          h4("Sanitation service can be classified into 4 levels (from best to worst): "),
+        wellPanel(
+          h3(icon("toilet"), "Sanitation"),
+          strong("Sanitation service can be classified into 4 levels (from best to worst): "),
           p("- At least basic = 'Use of improved facilities that are not shared with other households'"),
           p("- Limited = 'Use of improved facilities shared between two or more households'"),
           p("- Unimproved = 'Use of pit latrines without a slab or platform, hanging latrines or bucket latrines'"),
@@ -284,9 +287,9 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        fluidPage(
-          h2("Hygiene"),
-          h4("Hygiene service can be classified into 3 levels (from best to worst): "),
+        wellPanel(
+          h3(icon("soap"),"Hygiene"),
+          strong("Hygiene service can be classified into 3 levels (from best to worst): "),
           p("- At least basic = 'Availability of a handwashing facility on premises with soap and water'"),
           p("- Limited = 'Availability of handwashing facility on premises without soap and water'"),
           p("- No Facility = 'No handwashing facility on premises'"),
