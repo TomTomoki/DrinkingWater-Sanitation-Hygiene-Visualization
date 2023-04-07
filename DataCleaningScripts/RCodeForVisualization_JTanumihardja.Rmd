@@ -36,7 +36,7 @@ file_path <- "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment
 ## Water (TBD)
 
 ```{r, cache=TRUE}
-water_raw <- read_excel(file_path, sheet = "Sanitation")
+water_raw <- read_excel(file_path, sheet = "Water")
 ```
 
 ```{r , cache=TRUE}
@@ -612,7 +612,7 @@ column_names <- c(
   "URBAN_AtLeastBasic",
   "URBAN_Limited(shared)",
   "URBAN_Unimproved",
-  "URBAN_Open defecation",
+  "URBAN_OpenDefecation",
   "URBAN_AnnualRateOfChangeInBasic",
   "URBAN_AnnualRateOfChangeInOpenDefecation",
   "NATIONAL_SafelyManaged_Total",
@@ -651,63 +651,6 @@ sanitation <- sanitation %>% rename_with(~column_names)
 sapply(sanitation, class)
 ```
 
-```{r eval=FALSE}
-column_names <- c(
-  "COUNTRY",
-  "ISO3",
-  "YEAR",
-  "POPULATION(THOUSANDS)",
-  "%URBAN",
-  "NATIONAL_AtLeastBasic",
-  "NATIONAL_Limited(shared)",
-  "NATIONAL_Unimproved",
-  "NATIONAL_OpenDefecation",
-  "NATIONAL_AnnualRateOfChangeInBasic",
-  "NATIONAL_AnnualRateOfChangeInOpenDefecation",
-  "RURAL_AtLeastBasic",
-  "RURAL_Limited(shared)",
-  "RURAL_Unimproved",
-  "RURAL_OpenDefecation",
-  "RURAL_AnnualRateOfChangeInBasic",
-  "RURAL_AnnualRateOfChangeInOpenDefecation",
-  "URBAN_AtLeastBasic",
-  "URBAN_Limited(shared)",
-  "URBAN_Unimproved",
-  "URBAN_Open defecation",
-  "URBAN_AnnualRateOfChangeInBasic",
-  "URBAN_AnnualRateOfChangeInOpenDefecation",
-  "NATIONAL_SafelyManaged_Total",
-  "NATIONAL_SafelyManaged_DisposedInSitu",
-  "NATIONAL_SafelyManaged_EmptiedAndTreated",
-  "NATIONAL_SafelyManaged_WastewaterTreated",
-  "NATIONAL_SafelyManaged_TotalAnnualRateOfChange",
-  "NATIONAL_FacilityType_LatrinesAndOthers",
-  "NATIONAL_FacilityType_SepticTanks",
-  "NATIONAL_FacilityType_SewerConnections",
-  "RURAL_SafelyManaged_Total",
-  "RURAL_SafelyManaged_DisposedInSitu",
-  "RURAL_SafelyManaged_EmptiedAndTreated",
-  "RURAL_SafelyManaged_WastewaterTreated",
-  "RURAL_SafelyManaged_TotalAnnualRateOfChange",
-  "RURAL_FacilityType_LatrinesAndOthers",
-  "RURAL_FacilityType_SepticTanks",
-  "RURAL_FacilityType_SewerConnections",
-  "URBAN_SafelyManaged_Total",
-  "URBAN_SafelyManaged_DisposedInSitu",
-  "URBAN_SafelyManaged_EmptiedAndTreated",
-  "URBAN_SafelyManaged_WastewaterTreated",
-  "URBAN_SafelyManaged_TotalAnnualRateOfChange",
-  "URBAN_FacilityType_LatrinesAndOthers",
-  "URBAN_FacilityType_SepticTanks",
-  "URBAN_FacilityType_SewerConnections",
-  "SI",
-  "SDGRegion", 
-  "WHORegion", 
-  "UNICEFProgrammingRegion", 
-  "UNICEFReportingRegion"
-)
-
-```
 
 ### Tidying data
 
@@ -777,6 +720,16 @@ names(sanitation1)
 ```
 ```{r eval=FALSE}
 names(sanitation2)
+```
+
+```{r}
+#check ServiceLevels
+unique(sanitation1$ServiceLevel)
+```
+
+```{r}
+#check ServiceLevels
+unique(sanitation2$CriteriaDetails)
 ```
 
 
