@@ -1314,6 +1314,15 @@ ggplot(data = df_forecast, aes(x=YEAR, y=`POPULATION(MILLIONS)`,
 ```{r}
 class(df_forecast)  
 ```
+
+
+```{r}
+df_forecast_wide <- df_forecast %>% 
+  pivot_wider(names_from = ServiceLevel, 
+              values_from = `POPULATION(MILLIONS)`)
+```
+
+
 ### Convert df to ts
 
 source: https://www.statology.org/r-convert-data-frame-to-time-series/ 
@@ -1332,6 +1341,7 @@ tseries <- read.zoo(df_forecast_basic)
 
 tseries 
 ```
+
 ```{r}
 class(tseries)
 ```
@@ -1345,6 +1355,28 @@ tseries_ts
 
 #view class
 class(tseries_ts)
+```
+
+**convert all dataset to ts**
+
+```{r}
+#convert to timeseries with multiple variables
+tseries_dw <-read.zoo(df_forecast_wide)
+class(tseries_dw)
+
+tseries_dw_ts <- as.ts(df_forecast_wide)
+class(tseries_dw_ts)
+#why doesnt keep multiple var?
+```
+https://stackoverflow.com/questions/29046311/how-to-convert-dataframe-into-time-series
+
+```{r}
+Canada
+```
+
+
+```{r}
+tseries_dw_ts
 ```
 
 
@@ -1427,9 +1459,7 @@ plot(ets_forecast, xlab="Year", ylab="Population(millions)")
 ```
 
 ```{r}
-ggplot(data = ets_forecast, aes=(x=))+
-  geom_line()+
-  theme_bw()
+
 ```
 
 ```{r}
@@ -1475,7 +1505,10 @@ source: https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_ts.html
 
 ```{r}
 #install.packages("ggfortify")
+#install.packages("vars")
 ```
+
+
 ```{r}
 library(ggfortify)
 autoplot(tseries_ts)+
@@ -1485,11 +1518,28 @@ autoplot(tseries_ts)+
 
 ```{r}
 #plot in ggplot using ggfortify
-autoplot(dwforecast, predict.colour = 'red',
-         predict.linetype = 'dashed', conf.int = TRUE)+
+autoplot(dwforecast, predict.colour = 'blue',
+         predict.linetype = 'dotdash', predict.size = 1,
+         conf.int = TRUE, label=TRUE)+
+  # geom_text(aes(y=model_arima$mean))+
+  # annotate("text", label = paste("Population in 2023 :", 
+  #                                round(dwforecast$mean[10]/1000, 2)),
+  #          x = 2030, y = 8000, color = "blue")
   theme_bw()+
-  labs(x="YEAR", y ="Population(millions)")
+  labs(title="Total population with 'at least basic' drinking water service",
+       subtitle= paste("2030's total population with 'at least basic' ARIMA prediction=",
+                       round(dwforecast$mean[10]/1000, 2), "millions"),
+       x="YEAR", y ="Population(millions)")
 ```
+
+```{r}
+ggtsdiag(model_arima)
+```
+source:
+https://rpubs.com/sinhrks/plot_tsstats 
+https://rpubs.com/sinhrks/plot_ts
+https://rpubs.com/sinhrks/basics
+
 
 ```{r}
 tseries_ts %>% 
@@ -1498,9 +1548,19 @@ tseries_ts %>%
 ```
 
 ```{r}
-
+round(dwforecast$mean[10]/1000, 2)
 ```
 
+#### using vars
+
+```{r}
+library(vars)
+autoplot(tseries_dw_ts)
+```
+
+```{r}
+tseries_dw
+```
 
 
 # Question
