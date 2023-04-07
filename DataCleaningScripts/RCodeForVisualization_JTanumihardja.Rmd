@@ -1040,7 +1040,7 @@ write to df:
 ### Load files directly
 
 ```{r}
-hygiene1 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv")
+df_hygiene <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv")
 ```
 
 #### WHO example
@@ -1280,6 +1280,227 @@ hygiene_data2 %>%
 #  summarise(median = median(Percentage)) %>% 
 #  ggplot(aes(x=hsize, y=median))+
 ```
+
+##Forecast
+
+source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
+
+No seasonal or cyclic pattern, so choose: Exponential smoothing
+
+```{r}
+#install.packages("forecast")
+library(forecast)
+```
+
+```{r}
+library(forecast)
+
+df_forecast <- df_water %>%
+    filter(REGION == "NATIONAL" &
+             ServiceLevel != "AnnualRateOfChangeInBasic") %>%
+    mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
+           / 100 / 1000) %>%
+    group_by(YEAR, ServiceLevel) %>%
+    summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE)) %>% 
+    ungroup()
+
+ggplot(data = df_forecast, aes(x=YEAR, y=`POPULATION(MILLIONS)`,
+                             group=ServiceLevel, color=ServiceLevel)) +
+    geom_line() +
+    geom_point() +
+    theme_bw()
+```
+
+```{r}
+class(df_forecast)  
+```
+### Convert df to ts
+
+source: https://www.statology.org/r-convert-data-frame-to-time-series/ 
+
+```{r fig.height=11}
+df_forecast_basic <- df_forecast %>% 
+  filter(ServiceLevel == "AtLeastBasic") %>% 
+  select(!ServiceLevel)
+
+class(df_forecast_basic)
+```
+
+```{r}
+library(zoo)
+tseries <- read.zoo(df_forecast_basic)
+
+tseries 
+```
+```{r}
+class(tseries)
+```
+
+```{r}
+#convert to ts object
+tseries_ts <- as.ts(tseries)
+
+#view time series object
+tseries_ts
+
+#view class
+class(tseries_ts)
+```
+
+
+### TS decomposition
+
+source: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r 
+
+```{r}
+#create time series decomposition with frequecy = 5 years
+tsdata_basic <- ts(tseries_ts, frequency = 5) 
+ddata_basic <- decompose(tsdata_basic, "additive") #predicted to be additive (verified)
+plot(ddata_basic)
+```
+
+Obvious increasing trend as expected. There is seasonal trend if we see the graph but the y-scale is actually only 0.005 range! Therefore, no obvious seasonal or random trend.
+
+**Plot individually** 
+
+We see increasing trend about 1.5 billion people in 5 years. Less steep recently.
+
+```{r}
+plot(ddata_basic$trend)
+```
+
+
+```{r}
+plot(tseries_ts)
+abline(reg=lm(tseries_ts~time(tseries_ts)), 
+       col = "blue")
+```
+
+**Create box plot to check cycle**
+
+No cyclic trend found.
+
+```{r}
+boxplot(tseries_ts~cycle(tseries_ts))#, 
+                         # xlab="Year", ylab = "Population (millions)", 
+                         # main = "Drinkin Water At least basic service level between 2000-2020"))
+```
+
+### Exponential Smoothing
+
+Use state space model, source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
+
+```{r}
+#Create samples
+training=window(tseries_ts, start = 2000, end = 2015)
+validation=window(tseries_ts, start = 2016)
+```
+
+```{r eval=FALSE}
+training
+```
+
+```{r}
+ets_model = ets(training, allow.multiplicative.trend = TRUE)
+summary(ets_model)
+```
+ETS(A,A,N) means the exponential smoothing model (ETS) has:
+
+* error type "A" = additive
+* trend type "A" = additive
+* season type "N" = none.
+
+As predicted before, the dataset only have additive trend with no seasonality. 
+
+source: https://www.rdocumentation.org/packages/forecast/versions/8.21/topics/ets 
+
+```{r}
+library(ModelMetrics)
+ets_forecast = forecast(ets_model, h=length(validation))
+
+paste("Validation RMSE: ", round(rmse(validation, ets_forecast$mean),2))
+```
+RMSE is not too bad considering mean are mainly in thousands.
+
+```{r}
+plot(ets_forecast, xlab="Year", ylab="Population(millions)")
+```
+
+```{r}
+ggplot(data = ets_forecast, aes=(x=))+
+  geom_line()+
+  theme_bw()
+```
+
+```{r}
+
+```
+
+
+```{r}
+summary(ets_forecast)
+```
+
+
+### ARIMA
+
+```{r}
+model_arima <- auto.arima(tseries_ts)
+
+model_arima
+```
+```{r}
+#plot residuals
+plot.ts(model_arima$residuals)
+```
+
+```{r}
+#forecast for 10 years to see if the 2030 goal is achieved
+dwforecast <- forecast(model_arima, #use arima to include everything
+                       level=c(95), #set CI = 95%
+                       h=10) #10 years
+
+plot(dwforecast)
+```
+
+Validate the Model by Selecting Lag Values
+
+```{r}
+Box.test(model_arima$resid, lag=10, type="Ljung-Box")
+```
+
+#### Plotting in ggfortify
+
+source: https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_ts.html 
+
+```{r}
+#install.packages("ggfortify")
+```
+```{r}
+library(ggfortify)
+autoplot(tseries_ts)+
+  theme_bw()+
+  labs(x="YEAR", y ="Population(millions)")
+```
+
+```{r}
+#plot in ggplot using ggfortify
+autoplot(dwforecast, predict.colour = 'red',
+         predict.linetype = 'dashed', conf.int = TRUE)+
+  theme_bw()+
+  labs(x="YEAR", y ="Population(millions)")
+```
+
+```{r}
+tseries_ts %>% 
+  decompose(type ="additive") %>% 
+  autoplot()
+```
+
+```{r}
+
+```
+
 
 
 # Question
