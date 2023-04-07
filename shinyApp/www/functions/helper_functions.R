@@ -80,6 +80,7 @@ plot_map <- function(df, df_type){
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
       geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Unimproved: %.2f%%, Surface water: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_surface, 2))), 
                                color = 'white') +
+      scale_fill_distiller(palette = "Paired") +
       theme_classic() +
       theme(
         axis.line=element_blank(),
@@ -88,7 +89,8 @@ plot_map <- function(df, df_type){
         axis.ticks = element_blank()) +
       labs(title="Drinking Water Access Level",
            x ="",
-           y = "")
+           y = "",
+           fill = "% of At Least Basic Access")
     
   }
   
@@ -103,6 +105,7 @@ plot_map <- function(df, df_type){
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
       geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Unimproved: %.2f%%, Open defecation: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_open, 2))), 
                                color = 'white') +
+      scale_fill_distiller(palette = "YlOrBr") +
       theme_classic() +
       theme(
         axis.line=element_blank(),
@@ -111,7 +114,8 @@ plot_map <- function(df, df_type){
         axis.ticks = element_blank()) +
       labs(title="Sanitation Access Level",
            x ="",
-           y = "")
+           y = "",
+           fill = "% of At Least Basic Access")
     
   }
   
@@ -125,6 +129,7 @@ plot_map <- function(df, df_type){
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
       geom_polygon_interactive(aes(tooltip = sprintf("Basic: %.2f%%, Limited: %.2f%%, No facility: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_noFacility, 2))), 
                                color = 'white') +
+      scale_fill_distiller(palette = "PuRd") +
       theme_classic() +
       theme(
         axis.line=element_blank(),
@@ -133,12 +138,69 @@ plot_map <- function(df, df_type){
         axis.ticks = element_blank()) +
       labs(title="Hygiene Access Level",
            x ="",
-           y = "")
+           y = "",
+           fill = "% of Basic Access")
     
   }
   
-  girafe(ggobj = plot, width_svg=9, height_svg=3, options = c(opts_hover(css = "cursor:pointer;fill:red;stroke:red;"))) 
-  
+  girafe(ggobj = plot, width_svg=8, height_svg=4,
+         options = list(
+           opts_toolbar(position = "topright"),
+           opts_zoom(min = 1, max = 3),
+           opts_hover(css = "cursor:pointer;fill:red;stroke:red;")
+         ))
+}
+
+
+plot_lollipop <- function(df, df_type, region, year){
+  if (df_type == "Drinking Water"){
+    df_lollipop <- df %>%
+      filter(REGION == toupper(region) & YEAR == year & ServiceLevel == "SurfaceWater") %>%
+      arrange(desc(Percentage)) %>%
+      top_n(10)
+    
+    ggplot(df_lollipop, aes(x=fct_inorder(COUNTRY), y=Percentage)) +
+      geom_segment(aes(xend=fct_inorder(COUNTRY), y=0, yend=Percentage)) +
+      geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
+      labs(title = "10 Countries with the Highest % of Populations with SurfaceWater Drinking Water Access",
+           x = "Country") +
+      theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
+            axis.text.y = element_text(size=15),
+            axis.title = element_text(size=20),
+            title = element_text(size=15))
+    
+  } else if (df_type == "Sanitation"){
+    df_lollipop <- df %>%
+      filter(REGION == toupper(region) & YEAR == year & ServiceLevel == "OpenDefecation") %>%
+      arrange(desc(Percentage)) %>%
+      top_n(10)
+    
+    ggplot(df_lollipop, aes(x=fct_inorder(COUNTRY), y=Percentage)) +
+      geom_segment(aes(xend=fct_inorder(COUNTRY), y=0, yend=Percentage)) +
+      geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
+      labs(title = "10 Countries with the Highest % of Populations with OpenDefecation Sanitation Access",
+           x = "Country") +
+      theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
+            axis.text.y = element_text(size=15),
+            axis.title = element_text(size=20),
+            title = element_text(size=15))
+    
+  } else if (df_type == "Hygiene"){
+    df_lollipop <- df %>%
+      filter(REGION == toupper(region) & YEAR == year & ServiceLevel == "NoFacility") %>%
+      arrange(desc(Percentage)) %>%
+      top_n(10)
+    
+    ggplot(df_lollipop, aes(x=fct_inorder(COUNTRY), y=Percentage)) +
+      geom_segment(aes(xend=fct_inorder(COUNTRY), y=0, yend=Percentage)) +
+      geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
+      labs(title = "10 Countries with the Highest % of Populations with NoFacility Hygiene Acess",
+           x = "Country") +
+      theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
+            axis.text.y = element_text(size=15),
+            axis.title = element_text(size=20),
+            title = element_text(size=15))
+  }
 }
 
 

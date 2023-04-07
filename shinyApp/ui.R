@@ -2,15 +2,16 @@
 #Team Shabu-shabu, IE6600, Spring 2023
 
 ui <- fluidPage(
-
   navbarPage(
     "Water, Sanitation & Hygiene (WASH)",
     id = "navbar",
     theme = shinytheme("flatly"), #chosen theme
     
-    ##Drinking Water Tab---------------------------------------------------
+    ##Summary Tab---------------------------------------------------
     tabPanel(
       "Summary",
+      icon = icon("map"),
+      # https://fontawesome.com/icons/map?f=sharp&s=regular
       
       sidebarPanel(
         width = 3,
@@ -46,9 +47,10 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        #width = 9,
-        
-        girafeOutput(outputId = "summary_map_plot")
+        width = 9,
+
+        girafeOutput(outputId = "summary_map_plot"),
+        plotOutput(outputId = "summary_lollipop_plot")
       )
     ),
     
