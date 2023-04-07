@@ -22,8 +22,8 @@ server <- function(input, output){
                            plotColor = NULL,
                            serviceType = NULL)
   
-  ##Drinking Water tab -------------------------------------------------------
   observe({
+    ##Summary tab -------------------------------------------------------
     if (input$navbar == "Summary") {
       values$region <- input$summary_region
       values$map_year <- input$summary_year
@@ -37,6 +37,11 @@ server <- function(input, output){
         output$summary_map_plot <- renderGirafe(
           plot_map(values$map_df, "Drinking Water")
         )
+        
+        #plotting lollipop
+        output$summary_lollipop_plot <- renderPlot(
+          plot_lollipop(df_water, "Drinking Water", values$region, values$map_year)
+        )
       
       } else if (input$summary_dataset == "Sanitation") {
         values$map_df <- df_sanitation_map %>%
@@ -46,6 +51,11 @@ server <- function(input, output){
         #plotting map
         output$summary_map_plot <- renderGirafe(
           plot_map(values$map_df, "Sanitation")
+        )
+        
+        #plotting lollipop
+        output$summary_lollipop_plot <- renderPlot(
+          plot_lollipop(df_sanitation, "Sanitation", values$region, values$map_year)
         )
         
       } else if (input$summary_dataset == "Hygiene") {
@@ -58,8 +68,14 @@ server <- function(input, output){
           plot_map(values$map_df, "Hygiene")
         )
         
+        #plotting lollipop
+        output$summary_lollipop_plot <- renderPlot(
+          plot_lollipop(df_hygiene, "Hygiene", values$region, values$map_year)
+        )
+        
       }
       
+    ##Drinking Water tab -------------------------------------------------------
     } else if (input$navbar == "Drinking Water") {
       values$serviceType <- "Drinking Water"
       values$geo <- input$dw_geography
