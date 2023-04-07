@@ -149,7 +149,8 @@ plot_line <- function(df, region, year_start, year_end){
     mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
            / 100 / 1000) %>%
     group_by(YEAR, ServiceLevel) %>%
-    summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE))
+    summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE)) %>%
+    filter(`POPULATION(MILLIONS)` > 0)
 
   
   ggplot(data = df_line, aes(x=YEAR, y=`POPULATION(MILLIONS)`, 
