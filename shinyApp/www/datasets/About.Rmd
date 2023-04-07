@@ -1,0 +1,24 @@
+## About
+
+This web application is built for IE6600 Final Project. 
+
+**Author:** Team Shabu Shabu (Tomoki Kyotani, Jessica Tanumihardja, Xinan Wang, Jiayue Han)
+
+**Release date:** 04/11/2023
+
+
+#### Web Application Overview
+
+The web application is built using [R Shiny](https://shiny.rstudio.com/). The full code can be found on [Github](https://github.com/TomTomoki/DrinkingWater-Sanitation-Hygiene-Visualization).
+
+The top navigation bar allows you to choose a summary, the three available service types (drinking water, sanitation, and hygiene) as well as a forecast and about pages. The left sidebar panel provides options to customize the plots. Download buttons are available for each plot's top-right or bottom-left corner. Plots also have hover-over functions to see details. 
+
+
+#### Dataset Overview
+
+Access to clean and safe drinking water, sanitation, and hygiene is a fundamental human right and a critical determinant of health and well-being. However, millions of people worldwide lack access to these necessities. This project proposes an analysis of the world's household drinking water, what is the status of household access to safe drinking water, sanitation, and hygiene worldwide, and what factors contribute to disparities in access.
+
+The dataset is originated from and managed by [WHO/UNICEF Joint Monitoring Programme (JPM)](https://washdata.org/data/downloads#WLD). JPM tracks and records the global, regional, and global progress of drinking water, sanitation, and hygiene (WASH). The data is collected from various countries around the world. The datasets contain information on each country’s population, facilities, sewer systems, etc. The values are classified into three classification areas: national, urban, and rural.
+
+This project proposes a comprehensive analysis of world household drinking water, sanitation, and hygiene. The study utilizes a mixed-methods visualization approach, which provides an understanding of the status of access to these necessities worldwide and identifies gaps, challenges, and opportunities for improvement to achieve higher global health standards. The visualization helps to track whether JPM's 2030 vision of "universal access to basic services" will be achieved promptly.
+

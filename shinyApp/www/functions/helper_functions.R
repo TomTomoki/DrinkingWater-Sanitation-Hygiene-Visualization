@@ -159,8 +159,15 @@ plot_line <- function(df, region, year_start, year_end){
     theme_bw()
 }
 
-plot_donut <- function(df, region, year_end, geo){
-  df_donut <- df %>% 
+plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
+  if(serviceType == "Sanitation"){
+    df_donut <- df %>% 
+      filter(ServiceLevel != "AnnualRateOfChangeInOpenDefecation")
+  } else {
+    df_donut <- df
+  }
+  
+  df_donut <- df_donut %>% 
     filter(ServiceLevel != "AnnualRateOfChangeInBasic" &
              REGION == toupper(region) & 
              YEAR == year_end) %>%  #only specify latest year for clarity
@@ -169,22 +176,32 @@ plot_donut <- function(df, region, year_end, geo){
   
   hsize <- 3 #donut hole size
   
-  ggplot(df_donut, aes(x=hsize, y=median)) +
-    geom_col(aes(fill=ServiceLevel))+
-    # geom_text(aes(y = median/2 + c(0, cumsum(median)[-length(median)]),
-    #               label = paste(round(median,2), "%")),
-    #           hjust = 0.5)+
-    geom_text(aes(label = paste(round(median,2), "%")), #reduce decimal on value
-              position = position_stack(vjust = 0.75),
-              hjust = -0.75) +
-    coord_polar(theta = "y", start =0)+ #convert bar chart to polar
+  plot <- ggplot(df_donut, aes(x=hsize, y=median, fill=ServiceLevel))+
+    geom_col_interactive(aes(tooltip = paste(ServiceLevel, ": ", round(median,2), "%")))+
+    coord_polar(theta = "y")+ #convert bar chart to polar
     # Set the limits, which is important for adding the hole
-    xlim(c(0.2, hsize + 0.5))+ 
-    scale_fill_brewer(palette = "PuBuGn") + 
-    theme_void() + # Set theme_void() to remove grid lines etc from the plot
+    xlim(c(0.2, hsize + 0.5))+
+    theme_void() +
+    scale_fill_brewer(palette = plotColor) +
     labs(title = paste(toupper(geo), 
                        " Service Level Distribution Summary (", 
                        year_end, ")"),
-         subtitle = "Median Percentage from Countries with Available Values")
+         subtitle = paste(serviceType, 
+                          " Median Percentage from Countries with Available Values"))
+  
+  girafe(ggobj = plot, 
+         options = list(
+           opts_toolbar(position = "topright", 
+                        pngname = paste("plot_donut", serviceType, geo, year_end, sep="_")),
+           opts_zoom = opts_zoom(min = 1, max = 3),
+           opts_sizing = opts_sizing(rescale = TRUE),
+           #opts_hover_inv(css = "opacity:0.1;"),
+           opts_hover(css = "cursor:pointer;fill:red;stroke:red;")
+           ))
 }
 
+#troubleshoot code----------------------------------------
+#plot_donut code:
+# df_sanitation %>% filter(COUNTRY == "Zimbabwe") %>% 
+#     plot_donut("NATIONAL", 2020, "Zimbabwe", "Sanitation", "YlOrBr")
+#source: https://www.ardata.fr/ggiraph-book/toolbar.html 
