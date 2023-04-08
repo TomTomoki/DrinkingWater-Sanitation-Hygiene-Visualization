@@ -162,18 +162,20 @@ server <- function(input, output){
       )
       
       #plotting bar
-      # output$dw_bar_plot <- 
+       output$dw_bar_plot <- renderPlot({
+         plot_bar(values$df2, "Drinking Water", values$year_start, values$year_end, values$region)
+       })
       
-      # output$dw_downloadBar <- downloadHandler(
-      #   filename = function() {
-      #     paste("plot_bar_dw_", values$geoTitle, Sys.Date(), ".png", sep="")
-      #   },
-      #   content = function(file) {
-      #     png(file=file)
-      #     plot(plot_bar())#to be entered
-      #     dev.off()
-      #   }
-      # )
+       output$dw_downloadBar <- downloadHandler(
+         filename = function() {
+           paste("plot_bar_dw_", values$geoTitle, Sys.Date(), ".png", sep="")
+         },
+         content = function(file) {
+           png(file=file)
+           plot(plot_bar(values$df2, "Drinking Water", values$year_start, values$year_end, values$region))#to be entered
+           dev.off()
+         }
+       )
       
       #plotting donut chart
       output$dw_donut_plot <- renderGirafe(
@@ -233,18 +235,20 @@ server <- function(input, output){
       )
       
       #plotting bar
-      # output$dw_bar_plot <- 
+       output$s_bar_plot <- renderPlot({
+         plot_bar(values$df2, "Sanitation", values$year_start, values$year_end, values$region)
+       })
       
-      # output$dw_downloadBar <- downloadHandler(
-      #   filename = function() {
-      #     paste("plot_bar_san_", values$geoTitle, Sys.Date(), ".png", sep="")
-      #   },
-      #   content = function(file) {
-      #     png(file=file)
-      #     plot(plot_bar())#to be entered
-      #     dev.off()
-      #   }
-      # )
+       output$s_downloadBar <- downloadHandler(
+         filename = function() {
+           paste("plot_bar_san_", values$geoTitle, Sys.Date(), ".png", sep="")
+         },
+         content = function(file) {
+           png(file=file)
+           plot(plot_bar(values$df2, "Sanitation", values$year_start, values$year_end, values$region))#to be entered
+           dev.off()
+         }
+       )
       
       #plotting donut chart
       output$s_donut_plot <- renderGirafe(
@@ -304,18 +308,20 @@ server <- function(input, output){
       )
       
       #plotting bar
-      # output$h_bar_plot <- 
+       output$h_bar_plot <- renderPlot({
+         plot_bar(values$df, "Hygiene", values$year_start, values$year_end, values$region)
+       })
       
-      # output$h_downloadBar <- downloadHandler(
-      #   filename = function() {
-      #     paste("plot_bar_hyg_", values$geoTitle, Sys.Date(), ".png", sep="")
-      #   },
-      #   content = function(file) {
-      #     png(file=file)
-      #     plot(plot_bar())#to be entered
-      #     dev.off()
-      #   }
-      # )
+       output$h_downloadBar <- downloadHandler(
+         filename = function() {
+           paste("plot_bar_hyg_", values$geoTitle, Sys.Date(), ".png", sep="")
+         },
+         content = function(file) {
+           png(file=file)
+           plot(plot_bar(values$df, "Hygiene", values$year_start, values$year_end, values$region))#to be entered
+           dev.off()
+         }
+       )
       
       #plotting donut chart
       output$h_donut_plot <- renderGirafe(
