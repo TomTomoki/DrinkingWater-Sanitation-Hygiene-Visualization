@@ -109,7 +109,8 @@ server <- function(input, output){
       
       #plotting line chart
       output$dw_line_plot <- renderPlotly({
-        plot_line(values$df, values$region, values$year_start, values$year_end)
+        plot_line(values$df, values$region, values$year_start, values$year_end, 
+                  "Drinking Water")
       })
       
       output$dw_downloadLine <- downloadHandler(
@@ -178,7 +179,8 @@ server <- function(input, output){
       
       #plotting line chart
       output$s_line_plot <- renderPlotly({
-        plot_line(values$df, values$region, values$year_start, values$year_end)
+        plot_line(values$df, values$region, values$year_start, values$year_end, 
+                  "Sanitation")
       })
       
       output$s_downloadLine <- downloadHandler(
@@ -249,7 +251,8 @@ server <- function(input, output){
       
       #plotting line chart
       output$h_line_plot <- renderPlotly({
-        plot_line(values$df, values$region, values$year_start, values$year_end)
+        plot_line(values$df, values$region, values$year_start, values$year_end, 
+                  "Hygiene")
       })
       
       output$h_downloadLine <- downloadHandler(

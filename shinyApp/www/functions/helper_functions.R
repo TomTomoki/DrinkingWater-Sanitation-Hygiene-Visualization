@@ -215,7 +215,12 @@ plot_lollipop <- function(df, df_type, region, year){
 }
 
 
-plot_line <- function(df, region, year_start, year_end){
+plot_line <- function(df, region, year_start, year_end, tab){
+  if (tab == "Drinking Water" || tab == "Sanitation") {
+    df <- df %>%
+      filter(ServiceLevel != "AnnualRateOfChangeInBasic")
+  }
+  
   df_line <- df %>%
     filter(toupper(REGION) == toupper(region) & YEAR >= year_start 
            & YEAR <= year_end) %>%
@@ -230,6 +235,7 @@ plot_line <- function(df, region, year_start, year_end){
                              group=ServiceLevel, color=ServiceLevel)) +
     geom_line() +
     geom_point() +
+    scale_x_continuous(breaks = seq(year_start, year_end)) +
     theme_bw()
 }
 
