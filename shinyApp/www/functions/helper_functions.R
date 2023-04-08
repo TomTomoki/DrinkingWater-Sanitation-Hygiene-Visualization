@@ -230,6 +230,7 @@ plot_line <- function(df, region, year_start, year_end){
                              group=ServiceLevel, color=ServiceLevel)) +
     geom_line() +
     geom_point() +
+    scale_x_continuous(breaks = seq(year_start, year_end)) +
     theme_bw()
 }
 
