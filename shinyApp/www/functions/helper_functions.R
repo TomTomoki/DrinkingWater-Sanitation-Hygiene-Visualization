@@ -215,7 +215,12 @@ plot_lollipop <- function(df, df_type, region, year){
 }
 
 
-plot_line <- function(df, region, year_start, year_end){
+plot_line <- function(df, region, year_start, year_end, tab){
+  if (tab == "Drinking Water" || tab == "Sanitation") {
+    df <- df %>%
+      filter(ServiceLevel != "AnnualRateOfChangeInBasic")
+  }
+  
   df_line <- df %>%
     filter(toupper(REGION) == toupper(region) & YEAR >= year_start 
            & YEAR <= year_end) %>%
