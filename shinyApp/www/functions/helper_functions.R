@@ -333,6 +333,15 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
   summary(model_holt)
   holt_forecast = forecast(model_holt, h=10) #forecast until 2030
   
+  #Goal status update:
+  target <- round(holt_forecast$mean[10], 4)
+  target_label <- "N/A"
+  if(target >= 100){
+    target_label <- "2030 goal achieved!"
+  } else {
+    target_label <- "2030 goal not achieved"
+  }
+  
   autoplot(holt_forecast, predict.size = 1, 
            predict.colour = 'blue', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "lightblue")+
@@ -341,9 +350,9 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
     expand_limits(y=100)+
     theme(text=element_text(size=15))+
     #ylim(c(NA, 100))+ #set 100% as max
-    labs(title = "Time Series Forecast - Exponential Smoothing (Holt)",
-         subtitle = paste(toupper(geoTitle), region, " 'At least basic' forecast in 2030 =",
-                          round(holt_forecast$mean[10], 4), "%"),
+    labs(title = paste(toupper(geoTitle), region, "Time Series Forecast - Exponential Smoothing (Holt)"),
+         subtitle = paste("'At least basic' forecast in 2030 =",
+                          target, "%, ", target_label),
          x = "YEAR",
          y = "Median Percentage (%) of Population")+
     guides(colour=guide_legend(title=""))+
@@ -373,22 +382,34 @@ plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
   print(model_arima)
   model_arima_fc <- forecast(model_arima, level=c(95), h=10) #forecast until 2030
   
+  #Goal status update:
+  target <- round(model_arima_fc$mean[10], 4)
+  target_label <- "N/A"
+  if(target >= 100){
+    target_label <- "2030 goal achieved!"
+  } else {
+    target_label <- "2030 goal not achieved"
+  }
+  
+  #Plot ARIMA
   autoplot(model_arima_fc, predict.size = 1, 
            predict.colour = 'red', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "pink")+
     theme_bw()+
     expand_limits(y=100)+ #increase max y to 100%
     theme(text=element_text(size=15))+
-    labs(title = "Time Series Forecast - ARIMA (Auto)",
-         subtitle = paste(toupper(geoTitle), region, 
-                          " 'At least basic' forecast in 2030=",
-                          round(model_arima_fc$mean[10], 4), "%"),
+    labs(title = paste(toupper(geoTitle), region, " Time Series Forecast - ARIMA (Auto)"),
+         subtitle = paste("'At least basic' forecast in 2030=",
+                          target, "%, ", target_label),
          x = "YEAR",
          y = "Median Percentage (%) of Population")
 } ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
 #test forecast code:
-# df_water %>% #filter(COUNTRY == "Zimbabwe") %>%
-#       plot_ts_forecast_ARIMA("NATIONAL", "WORLD")
+# df_hygiene %>% filter(COUNTRY == "Indonesia") %>%
+#       plot_ts_forecast_ARIMA("NATIONAL", "INDONESIA")
+# 
+# df_hygiene %>% filter(COUNTRY == "Indonesia") %>%
+#   plot_ts_forecast_ES("NATIONAL", "INDONESIA")
 
 #make model reactive? but cant work: https://stackoverflow.com/questions/68241763/r-shiny-error-trying-to-output-reactive-model-summary

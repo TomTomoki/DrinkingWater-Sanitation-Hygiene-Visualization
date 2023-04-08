@@ -193,9 +193,9 @@ Save df for future use
 ### Load files directly
 
 ```{r}
-df_water <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets//water1.csv")
+df_water <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/water1.csv")
 
-df_water2 <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets//water2.csv")
+df_water2 <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/water2.csv")
 ```
 
 ```{r eval=FALSE}
@@ -1287,10 +1287,11 @@ df_forecast <- df_hygiene %>%
 At least basic only:
 
 ```{r}
-df_forecast_basic <- df_hygiene %>% 
+#water
+df_forecast_basic <- df_water %>% 
     filter(ServiceLevel == "AtLeastBasic" &
              REGION == "URBAN" &
-             SDGRegion == "Sub-Saharan Africa")%>%  
+             COUNTRY == "Indonesia")%>%  
     group_by(YEAR) %>% 
     summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
     ungroup()
@@ -1341,9 +1342,9 @@ autoplot(ddata_basic)+
 ```
 
 
-## Time Series Forecasting
+## TS Forecasting
 
-### Exponential Smoothing
+### Exponential Smoothing - ETS (not used)
 
 Use state space model, source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
 
@@ -1355,15 +1356,9 @@ Use state space model, source: https://towardsdatascience.com/a-guide-to-forecas
 
 Use ETS model
 
-```{r eval=FALSE}
-#install.packages("MLmetrics")
-```
-
 ```{r}
-plot(forecast_ts_basic)
+#plot(forecast_ts_basic)
 ```
-
-
 
 ```{r}
 library(forecast)
@@ -1388,28 +1383,39 @@ https://rstudio-pubs-static.s3.amazonaws.com/681477_4af44c0abe0741d8ad5093df1091
 ```{r}
 #library(ModelMetrics)
 ets_forecast = forecast(ets_model, h=10)
-
+#ets_forecast
 #paste("Validation RMSE: ", round(RMSE(validation, ets_forecast$mean),2))
 ```
 
 RMSE is not too bad considering mean are mainly in thousands.
 
 ```{r}
+target <- round(ets_forecast$mean[10], 4)
+target_label <- "N/A"
+if(target >= 100){
+  target_label <- "goal achieved!"
+} else {
+  target_label <- "goal not achieved"
+}
+
 autoplot(ets_forecast, predict.size = 1, 
          predict.colour = 'blue', predict.linetype = 'dashed',
          conf.int = TRUE, conf.int.fill = "lightblue")+
-  autolayer(fitted(ets_model))+
+  autolayer(fitted(ets_model), series = "Fitted")+
   theme_bw()+
-  theme(text=element_text(size=15))+
+  theme(text=element_text(size=12))+
   expand_limits(y=100)+
   labs(title = "Time Series Forecast - Exponential Smoothing (ETS)",
-       subtitle = paste("2030 World 'At least basic' ES forecast =",
-                       round(ets_forecast$mean[10], 4), "%"),
+       subtitle = paste("[World] [NATIONAL] 'At least basic' 2030 forecast =",
+                       target, "%, ", target_label),
        x = "YEAR",
-       y = "Median Percentage (%)")
+       y = "Median Percentage (%)")+
+  guides(colour=guide_legend(title=""))+
+    theme(legend.position = "bottom", 
+          legend.background = element_rect(fill="lightblue",linetype="solid"))
 ```
 
-#### ES with Trend (HOLT)
+### ES - (HOLT) with trend
 
 ```{r eval=FALSE}
 holt_forecast <- holt(forecast_ts_basic) 
@@ -1424,7 +1430,7 @@ autoplot(holt_forecast, predict.size = 1,
   autolayer(fitted(holt_forecast), series='Fitted') +
   theme_bw()+
   labs(title = "Time Series Forecast - Exponential Smoothing (Holt)",
-       subtitle = paste("2030 World 'At least basic' ES forecast =",
+       subtitle = paste("[World] [Urban] 'At least basic' 2030 ES forecast =",
                        round(holt_forecast$mean[10], 4), "%"),
        x = "YEAR",
        y = "Percentage (%) of Population")+

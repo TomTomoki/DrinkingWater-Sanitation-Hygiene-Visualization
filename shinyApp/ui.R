@@ -52,12 +52,14 @@ ui <- fluidPage(
           girafeOutput(outputId = "summary_map_plot"),
           br(),
           br(),
-          plotOutput(outputId = "summary_lollipop_plot")
+          plotOutput(outputId = "summary_lollipop_plot"),
+          downloadButton("download_lollipop", "Download Lollipop Plot", 
+                         icon = shiny::icon("download"))
         )
       )
     ),
     
-    ##Drinking Water Tab---------------------------------------------------
+    ##Drinking Water Tab---------------------------------------
     tabPanel(
       "Drinking Water",
       icon = icon("glass-water-droplet"), #e4f4 https://fontawesome.com/icons/glass-water?f=classic&s=solid
@@ -124,8 +126,6 @@ ui <- fluidPage(
           br(),
           br(),
           plotlyOutput(outputId = "dw_line_plot"),
-          downloadButton("dw_downloadLine", "Download Line Plot", 
-                       icon = shiny::icon("download")),
           br(),
           br(),
           girafeOutput(outputId = "dw_donut_plot"),
@@ -211,8 +211,6 @@ ui <- fluidPage(
           br(),
           br(),
           plotlyOutput(outputId = "s_line_plot"),
-          downloadButton("s_downloadLine", "Download Line Plot", 
-                         icon = shiny::icon("download")),
           br(),
           br(),
           girafeOutput(outputId = "s_donut_plot"),
@@ -298,8 +296,6 @@ ui <- fluidPage(
           br(),
           br(),
           plotlyOutput(outputId = "h_line_plot"),
-          downloadButton("h_downloadLine", "Download Line Plot", 
-                         icon = shiny::icon("download")),
           br(),
           girafeOutput(outputId = "h_donut_plot"),
           br(),

@@ -20,7 +20,8 @@ server <- function(input, output){
                            df2 = NULL,
                            geoTitle = NULL,
                            plotColor = NULL,
-                           serviceType = NULL)
+                           serviceType = NULL,
+                           df_ts=NULL)
   
   observe({
     ##Summary tab -------------------------------------------------------
@@ -42,6 +43,18 @@ server <- function(input, output){
         output$summary_lollipop_plot <- renderPlot(
           plot_lollipop(df_water, "Drinking Water", values$region, values$map_year)
         )
+        
+        output$download_lollipop <- downloadHandler(
+          filename = function() {
+            paste("plot_lollipop", values$region, ".png", sep="_")
+          },
+          content = function(file) {
+            png(file=file)
+            plot(plot_lollipop(df_water, "Drinking Water", 
+                               values$region, values$map_year))
+            dev.off()
+          }
+        )
       
       } else if (input$summary_dataset == "Sanitation") {
         values$map_df <- df_sanitation_map %>%
@@ -56,6 +69,18 @@ server <- function(input, output){
         #plotting lollipop
         output$summary_lollipop_plot <- renderPlot(
           plot_lollipop(df_sanitation, "Sanitation", values$region, values$map_year)
+        )
+        
+        output$download_lollipop <- downloadHandler(
+          filename = function() {
+            paste("plot_lollipop", values$region, ".png", sep="_")
+          },
+          content = function(file) {
+            png(file=file)
+            plot(plot_lollipop(df_sanitation, "Sanitation", 
+                               values$region, values$map_year))
+            dev.off()
+          }
         )
         
       } else if (input$summary_dataset == "Hygiene") {
@@ -73,9 +98,21 @@ server <- function(input, output){
           plot_lollipop(df_hygiene, "Hygiene", values$region, values$map_year)
         )
         
+        output$download_lollipop <- downloadHandler(
+          filename = function() {
+            paste("plot_lollipop", values$region, ".png", sep="_")
+          },
+          content = function(file) {
+            png(file=file)
+            plot(plot_lollipop(df_hygiene, "Hygiene", 
+                               values$region, values$map_year))
+            dev.off()
+          }
+        )
+        
       }
       
-    ##Drinking Water tab -------------------------------------------------------
+    ##Drinking Water tab --------------------------------------------
     } else if (input$navbar == "Drinking Water") {
       values$serviceType <- "Drinking Water"
       values$geo <- input$dw_geography
@@ -301,33 +338,33 @@ server <- function(input, output){
         values$df <- df_hygiene
       }
       
-      #prefilter dataset
+      #prefilter dataset - does not work??
       if(values$geo == "region"){
         values$geoRegion <- input$fc_geoRegion
-        values$df <- values$df %>% filter(SDGRegion == values$geoRegion)
+        values$df_ts <- values$df %>% filter(SDGRegion == values$geoRegion)
         values$geoTitle <- input$fc_geoRegion #for plot title
         
-        print(values$geoRegion) #troubleshoot
-        print(values$geoTitle) #troubleshoot
+        # print(values$geoRegion) #troubleshoot
+        # print(values$geoTitle) #troubleshoot
         
       } else if(values$geo == "region_country"){
         values$country <- input$fc_region_country
-        values$df <- values$df %>% filter(COUNTRY == values$country)
+        values$df_ts <- values$df %>% filter(COUNTRY == values$country)
         values$geoTitle <- input$fc_region_country #for plot title
         
-        print(values$country)  #troubleshoot
-        print(values$geoTitle) #troubleshoot
+        # print(values$country)  #troubleshoot
+        # print(values$geoTitle) #troubleshoot
       } else {
-        values$df <- values$df #specified before
+        values$df_ts <- values$df #specified before
         values$geoTitle <- values$geo
         
-        print(values$geoTitle) #troubleshoot
+        #print(values$geoTitle) #troubleshoot
       }
-      view(values$df) #for troubleshooting
+      #view(values$df_ts) #for troubleshooting
          
       #plotting ts_raw plot
       output$ts_raw_plot <- renderPlot(
-        plot_ts_decomp(values$df, values$region, values$geoTitle)
+        plot_ts_decomp(values$df_ts, values$region, values$geoTitle)
       )
       
       output$fc_downloadRaw <- downloadHandler(
@@ -337,14 +374,14 @@ server <- function(input, output){
         },
         content = function(file) {
           png(file=file)
-          plot(plot_ts_decomp(values$df, values$region, values$geoTitle))
+          plot(plot_ts_decomp(values$df_ts, values$region, values$geoTitle))
           dev.off()
         }
       )
       
       #plotting forecast plots - ES
       output$ts_forecast_plotES <- renderPlot(
-        plot_ts_forecast_ES(values$df, values$region, values$geoTitle)
+        plot_ts_forecast_ES(values$df_ts, values$region, values$geoTitle)
       )
       
       output$fc_downloadForecastES <- downloadHandler(
@@ -354,14 +391,14 @@ server <- function(input, output){
         },
         content = function(file) {
           png(file=file)
-          plot(plot_ts_forecast_ES(values$df, values$region, values$geoTitle))
+          plot(plot_ts_forecast_ES(values$df_ts, values$region, values$geoTitle))
           dev.off()
         }
       )
       
       #plotting forecast plots - ARIMA
       output$ts_forecast_plotARIMA <- renderPlot(
-        plot_ts_forecast_ARIMA(values$df, values$region, values$geoTitle)
+        plot_ts_forecast_ARIMA(values$df_ts, values$region, values$geoTitle)
       )
       
       output$fc_downloadForecastA <- downloadHandler(
@@ -371,7 +408,7 @@ server <- function(input, output){
         },
         content = function(file) {
           png(file=file)
-          plot(plot_ts_forecast_ARIMA(values$df, values$region, values$geoTitle))
+          plot(plot_ts_forecast_ARIMA(values$df_ts, values$region, values$geoTitle))
           dev.off()
         }
       )
