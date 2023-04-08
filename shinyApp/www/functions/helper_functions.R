@@ -261,7 +261,7 @@ plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
                        " Service Level Distribution Summary (", 
                        year_end, ")"),
          subtitle = paste(serviceType, 
-                          " Median Percentage from Countries with Available Values"))
+                          " Median % Population from Countries with Available Values"))
   
   girafe(ggobj = plot, 
          options = list(
@@ -281,14 +281,16 @@ plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
 #source: https://www.ardata.fr/ggiraph-book/toolbar.html 
 
 plot_ts_decomp <- function(df, region, geoTitle){
-  df_ts <- df %>% 
+  df_ts <- df %>%  #tried to filter in server but does not work?
     filter(ServiceLevel == "AtLeastBasic" &
              REGION == toupper(region))%>%  
     group_by(YEAR) %>% 
     summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
     ungroup()
   
-  ts_forecast <- df_ts %>% ts_ts()
+  ts_forecast <- df_ts %>% 
+    ts_long %>% 
+    ts_ts()
   
   #decomposition
   tsdata_basic <- ts(ts_forecast, frequency = 5) 
@@ -296,9 +298,10 @@ plot_ts_decomp <- function(df, region, geoTitle){
   
   autoplot(ddata_basic)+
     theme_bw()+
-    labs(title = paste(toupper(geoTitle), 
-                       "'At least basic' Service Level (", region, ")"),
-         subtitle = "Decomposition of Additive Time Series (frequency = 5 years)",
+    theme(text=element_text(size=15))+
+    labs(title = paste(toupper(geoTitle), "(", region,
+                       ") 'At least basic' Service Level"),
+         subtitle = "Decomposition of Additive Time Series (freq. = 5 years)",
          xlab = "Time (freq=5 years)",
          ylab = "values")
 } ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r 
@@ -315,23 +318,33 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
     summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
     ungroup()
   
-  ts_forecast <- df_ts %>% ts_ts()
+  ts_forecast <- df_ts %>% 
+    ts_long %>% 
+    ts_ts()
   
   #Exponential smoothing (state space model) 
-  ets_model = ets(ts_forecast, allow.multiplicative.trend = TRUE)
-  summary(ets_model)
-  ets_forecast = forecast(ets_model, h=10) #forecast until 2030
+  model_holt = holt(ts_forecast)
+  summary(model_holt)
+  holt_forecast = forecast(model_holt, h=10) #forecast until 2030
   
-  autoplot(ets_forecast, predict.size = 1, 
+  autoplot(holt_forecast, predict.size = 1, 
            predict.colour = 'blue', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "lightblue")+
+    autolayer(fitted(model_holt), series='Fitted')+
     theme_bw()+
-    labs(title = "Time Series Forecast - Exponential Smoothing (ES)",
-         subtitle = paste(toupper(geoTitle), "2030 'At least basic' ES forecast =",
-                          round(ets_forecast$mean[10], 4), "%"),
+    expand_limits(y=100)+
+    theme(text=element_text(size=15))+
+    #ylim(c(NA, 100))+ #set 100% as max
+    labs(title = "Time Series Forecast - Exponential Smoothing (Holt)",
+         subtitle = paste(toupper(geoTitle), region, " 'At least basic' forecast in 2030 =",
+                          round(holt_forecast$mean[10], 4), "%"),
          x = "YEAR",
-         y = "Median Percentage (%)")
+         y = "Median Percentage (%) of Population")+
+    guides(colour=guide_legend(title=""))+
+    theme(legend.position = "bottom", 
+          legend.background = element_rect(fill="lightblue",linetype="solid"))
 } ##SOURCE: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261
+  #source: https://rstudio-pubs-static.s3.amazonaws.com/681477_4af44c0abe0741d8ad5093df109130b5.html 
 
 #test forecast code:
 # df_water %>% filter(COUNTRY == "Zimbabwe") %>%
@@ -345,7 +358,9 @@ plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
     summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
     ungroup()
   
-  ts_forecast <- df_ts %>% ts_ts()
+  ts_forecast <- df_ts %>% 
+    ts_long %>% 
+    ts_ts()
   
   #AutoArima Model 
   model_arima <- auto.arima(ts_forecast)
@@ -356,14 +371,18 @@ plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
            predict.colour = 'red', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "pink")+
     theme_bw()+
-    labs(title = "Time Series Forecast - ARIMA",
-         subtitle = paste(toupper(geoTitle), 
-                          "2030 'At least basic' ARIMA forecast =",
+    expand_limits(y=100)+ #increase max y to 100%
+    theme(text=element_text(size=15))+
+    labs(title = "Time Series Forecast - ARIMA (Auto)",
+         subtitle = paste(toupper(geoTitle), region, 
+                          " 'At least basic' forecast in 2030=",
                           round(model_arima_fc$mean[10], 4), "%"),
          x = "YEAR",
-         y = "Median Percentage (%)")
+         y = "Median Percentage (%) of Population")
 } ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
 #test forecast code:
 # df_water %>% #filter(COUNTRY == "Zimbabwe") %>%
 #       plot_ts_forecast_ARIMA("NATIONAL", "WORLD")
+
+#make model reactive? but cant work: https://stackoverflow.com/questions/68241763/r-shiny-error-trying-to-output-reactive-model-summary

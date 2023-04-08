@@ -31,7 +31,7 @@ server <- function(input, output){
       if (input$summary_dataset == "DrinkingWater"){
         values$map_df <- df_water_map %>%
           filter(Region == values$region & Year == values$map_year) %>%
-          select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (more than 30 mins)`, Unimproved, `Surface water`)
+          dplyr::select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (more than 30 mins)`, Unimproved, `Surface water`)
       
         #plotting map
         output$summary_map_plot <- renderGirafe(
@@ -46,7 +46,7 @@ server <- function(input, output){
       } else if (input$summary_dataset == "Sanitation") {
         values$map_df <- df_sanitation_map %>%
           filter(Region == values$region & Year == values$map_year) %>%
-          select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (shared)`, Unimproved, `Open defecation`)
+          dplyr::select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `At least basic`, `Limited (shared)`, Unimproved, `Open defecation`)
         
         #plotting map
         output$summary_map_plot <- renderGirafe(
@@ -61,7 +61,7 @@ server <- function(input, output){
       } else if (input$summary_dataset == "Hygiene") {
         values$map_df <- df_hygiene_map %>%
           filter(Region == values$region & Year == values$map_year) %>%
-          select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `Basic`, `Limited (without water or soap)`, `No facility`)
+          dplyr::select(`COUNTRY, AREA OR TERRITORY`, long, lat, group, `Basic`, `Limited (without water or soap)`, `No facility`)
         
         #plotting map
         output$summary_map_plot <- renderGirafe(
@@ -304,23 +304,23 @@ server <- function(input, output){
         values$df <- values$df %>% filter(SDGRegion == values$geoRegion)
         values$geoTitle <- input$fc_geoRegion #for plot title
         
-        #print(values$geoRegion) #troubleshoot
-        #print(values$geoTitle) #troubleshoot
+        print(values$geoRegion) #troubleshoot
+        print(values$geoTitle) #troubleshoot
         
       } else if(values$geo == "region_country"){
         values$country <- input$fc_region_country
         values$df <- values$df %>% filter(COUNTRY == values$country)
         values$geoTitle <- input$fc_region_country #for plot title
         
-        # print(values$country)  #troubleshoot
-        # print(values$geoTitle) #troubleshoot
+        print(values$country)  #troubleshoot
+        print(values$geoTitle) #troubleshoot
       } else {
-        #values$df <- values$df #specified before
+        values$df <- values$df #specified before
         values$geoTitle <- values$geo
         
-        #print(values$geoTitle) #troubleshoot
+        print(values$geoTitle) #troubleshoot
       }
-      #view(values$df) #for troubleshooting
+      view(values$df) #for troubleshooting
          
       #plotting ts_raw plot
       output$ts_raw_plot <- renderPlot(
