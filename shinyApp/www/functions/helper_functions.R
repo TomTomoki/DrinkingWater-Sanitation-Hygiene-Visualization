@@ -135,7 +135,7 @@ plot_map <- function(df, df_type){
              avg_noFacility = mean(`No facility`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = paste(paste("Basic: ", round(avg_basic, 2), "%"), 
+      geom_polygon_interactive(aes(tooltip = paste(paste("At least basic: ", round(avg_basic, 2), "%"), 
                                                    paste("Limited: ", round(avg_limited, 2), "%"), 
                                                    paste("No facility: ", round(avg_noFacility, 2), "%"),
                                                    sep = "\n")), 
@@ -150,7 +150,7 @@ plot_map <- function(df, df_type){
       labs(title="Hygiene Access Level",
            x ="",
            y = "",
-           fill = "% of Basic Access")
+           fill = "% of At Least Basic Access")
     
   }
   
