@@ -82,7 +82,7 @@ server <- function(input, output){
       values$region <- input$dw_region
       values$year_start <- input$dw_year[1]
       values$year_end <- input$dw_year[2]
-      values$plotColor <- "Paired"
+      values$plotColor <- "Blues"
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){
@@ -150,7 +150,7 @@ server <- function(input, output){
       values$region <- input$s_region
       values$year_start <- input$s_year[1]
       values$year_end <- input$s_year[2]
-      values$plotColor <- "YlOrBr"
+      values$plotColor <- "Greens"
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){
@@ -221,7 +221,7 @@ server <- function(input, output){
       values$region <- input$h_region
       values$year_start <- input$h_year[1]
       values$year_end <- input$h_year[2]
-      values$plotColor <- "PuRd"
+      values$plotColor <- "Oranges"
       
       #conditional statement to filter per region or country, if applicable
       if(values$geo == "region"){

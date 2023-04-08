@@ -47,10 +47,12 @@ ui <- fluidPage(
       ),
       
       mainPanel(
-        width = 9,
-
-        girafeOutput(outputId = "summary_map_plot"),
-        plotOutput(outputId = "summary_lollipop_plot")
+        wellPanel(
+          width = 9,
+          
+          girafeOutput(outputId = "summary_map_plot"),
+          plotOutput(outputId = "summary_lollipop_plot") 
+        )
       )
     ),
     
