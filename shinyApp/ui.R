@@ -48,9 +48,10 @@ ui <- fluidPage(
       
       mainPanel(
         width = 9,
-
-        girafeOutput(outputId = "summary_map_plot"),
-        plotOutput(outputId = "summary_lollipop_plot")
+        wellPanel(
+          girafeOutput(outputId = "summary_map_plot"),
+          plotOutput(outputId = "summary_lollipop_plot")
+        )
       )
     ),
     
@@ -310,7 +311,95 @@ ui <- fluidPage(
     
     ##Forecast Tab -------------------------------------------------
     tabPanel("Forecast",
-             icon = icon("arrow-trend-up")), #https://fontawesome.com/icons/arrow-trend-up?f=classic&s=solid
+             icon = icon("arrow-trend-up"), #https://fontawesome.com/icons/arrow-trend-up?f=classic&s=solid
+             
+             #sidebar Panel
+             sidebarPanel(
+               width = 3,
+               helpText("Ten-year forecast of WHO/UNICEF JPM Household data based on selected geography and classification area."),
+               
+               awesomeRadio(
+                 inputId = "fc_dataset",
+                 label = "Dataset:",
+                 choices = c(DrinkingWater = "DrinkingWater", 
+                             Sanitation = "Sanitation", 
+                             Hygiene = "Hygiene"),
+                 selected = "DrinkingWater",
+                 inline = TRUE,
+                 checkbox = TRUE
+               ),
+               
+               awesomeRadio(
+                 inputId = "fc_geography",
+                 label = "Geography:",
+                 choices = c(World = "world", 
+                             SDGRegion = "region", 
+                             Country = "region_country"),
+                 selected = "world",
+                 inline = TRUE,
+                 checkbox = TRUE
+               ),
+               
+               conditionalPanel( #added for Geo Region
+                 condition = "input.fc_geography == 'region'",
+                 virtualSelectInput(
+                   inputId = "fc_geoRegion",
+                   label = "Select SDG Region:",
+                   choices = region_list,
+                   selected = region_list[1],
+                   showValueAsTags = TRUE,
+                   search = TRUE
+                 )
+               ),
+               
+               conditionalPanel(
+                 condition = "input.fc_geography == 'region_country'",
+                 virtualSelectInput(
+                   inputId = "fc_region_country",
+                   label = "Select Country:",
+                   choices = region_country_list,
+                   selected = region_country_list[[1]][1],
+                   showValueAsTags = TRUE,
+                   search = TRUE
+                 )
+               ),
+               
+               radioButtons(
+                 inputId = "fc_region",
+                 label = "Classification Area:",
+                 choices = c("National",
+                             "Rural",
+                             "Urban"),
+                 selected = "National" 
+               ),
+             ),
+             
+             mainPanel(
+               width = 9,
+               wellPanel(
+                 h3(icon("arrow-trend-up"), "2030 Forecast"),
+                 
+                 p("The forecast graphs display whether JPM's 2030 vision of 100% 'universal access to basic services' will be achieved."),
+                 br(),
+                 br(),
+               
+                 #girafeOutput(outputId = "summary_map_plot"),
+                 plotOutput(outputId = "ts_raw_plot", width = "60%"),
+                 downloadButton("fc_downloadRaw", "Download Decomposed Plot", 
+                                icon = shiny::icon("download")),
+                 br(),
+                 br(),
+                 plotOutput(outputId = "ts_forecast_plotES", width = "75%"),
+                 downloadButton("fc_downloadForecastES", "Download ES Forecast Plot", 
+                                icon = shiny::icon("download")),
+                 br(),
+                 br(),
+                 plotOutput(outputId = "ts_forecast_plotARIMA", width = "75%"),
+                 downloadButton("fc_downloadForecastA", "Download ARIMA Forecast Plot", 
+                                icon = shiny::icon("download"))
+              )
+              )
+            ), 
     
     ##About Tab -----------------------------------------------------
     tabPanel("About",

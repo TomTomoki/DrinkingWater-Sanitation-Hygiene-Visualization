@@ -18,6 +18,10 @@ library(ggplot2)
 library(datasets)
 library(haven)
 library(readxl)
+library(forecast)
+library(tsbox)
+library(vars)
+library(ggfortify)
 #library(caret)
 
 
@@ -195,7 +199,7 @@ df_water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/A
 
 ```{r eval=FALSE}
 #check columns
-sapply(water2, class)
+sapply(df_water2, class)
 ```
 
 
@@ -732,15 +736,14 @@ unique(sanitation1$ServiceLevel)
 unique(sanitation2$CriteriaDetails)
 ```
 
-
 Save df for future use (github)
 
 ```{r eval=FALSE}
 #edit the sanitation 2 old file
 #if want to write the df in folder
-#write.csv(sanitation1, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation1.csv", row.names=FALSE)
+write.csv(sanitation1, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation1.csv", row.names=FALSE)
 
-#write.csv(sanitation2, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation2.csv", row.names=FALSE)
+write.csv(sanitation2, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation2.csv", row.names=FALSE)
 ```
 
 ### Load files directly
@@ -750,6 +753,12 @@ sanitation1 <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitatio
 
 sanitation2 <- read_csv("C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation2.csv")
 ```
+
+```{r}
+sanitation2 %>% filter()
+```
+
+
 
 ### QUESTION
 
@@ -917,7 +926,7 @@ column_names_hygiene <- c(
   "YEAR",
   "POPULATION(THOUSANDS)",
   "%URBAN",
-  "NATIONAL_Basic",
+  "NATIONAL_AtLeastBasic",
   "NATIONAL_Limited(withoutWaterOrSoap)",
   "NATIONAL_NoFacility",
   "NATIONAL_AnnualRateOfChangeInBasic",
@@ -975,7 +984,7 @@ sapply(hygiene, class)
 #Make dataset from wide to long, see R documentation (example shown below)
 hygiene1 <- hygiene %>% 
   pivot_longer(
-    cols = NATIONAL_Basic:URBAN_AnnualRateOfChangeInBasic,
+    cols = NATIONAL_AtLeastBasic:URBAN_AnnualRateOfChangeInBasic,
     names_to = c("REGION", "ServiceLevel"),
     names_sep = "_",
     values_to = "Percentage")
@@ -987,7 +996,7 @@ write to df:
 
 ```{r}
 #if want to write the df in folder
-#write.csv(hygiene1, "C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/hygiene1.csv", row.names=FALSE)
+write.csv(hygiene1, "C:/Users/jtanu/Documents/GitHub/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/hygiene1.csv", row.names=FALSE)
 ```
 
 ### Load files directly
@@ -1234,142 +1243,85 @@ hygiene_data2 %>%
 #  ggplot(aes(x=hsize, y=median))+
 ```
 
-##Forecast
 
-source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
+#Forecast
 
-No seasonal or cyclic pattern, so choose: Exponential smoothing
+## Load Files
 
 ```{r}
-#install.packages("forecast")
-library(forecast)
+df_water <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water1.csv")
+
+df_water2 <- read_csv("C:/Users/jtanu/Documents/Northeastern/2023SPRING/IE6600/Assignment/FinalProject/water2.csv")
 ```
 
+Filter df for timeseries
+
 ```{r}
-library(forecast)
+library(tidyverse)
 
 df_forecast <- df_water %>%
     filter(REGION == "NATIONAL" &
              ServiceLevel != "AnnualRateOfChangeInBasic") %>%
-    mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
-           / 100 / 1000) %>%
-    group_by(YEAR, ServiceLevel) %>%
-    summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE)) %>% 
+    group_by(YEAR, ServiceLevel) %>% #combine all country
+    summarise(median = median(Percentage, na.rm = TRUE)) %>% 
     ungroup()
+```
+At least basic only:
 
-ggplot(data = df_forecast, aes(x=YEAR, y=`POPULATION(MILLIONS)`,
-                             group=ServiceLevel, color=ServiceLevel)) +
-    geom_line() +
-    geom_point() +
-    theme_bw()
+```{r}
+df_forecast_basic <- df_water %>% 
+    filter(ServiceLevel == "AtLeastBasic" &
+             REGION == "NATIONAL")%>%  
+    group_by(YEAR) %>% 
+    summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
+    ungroup()
+```
+
+## convert df to ts
+
+source: https://cran.r-project.org/web/packages/tsbox/vignettes/tsbox.html
+
+```{r}
+library(tsbox)
+forecast_ts <- df_forecast %>% 
+  ts_long() %>% 
+  ts_ts()
 ```
 
 ```{r}
-class(df_forecast)  
+forecast_ts_basic <- df_forecast_basic %>% 
+  ts_ts()
+
+forecast_ts_basic 
 ```
 
-
-```{r}
-df_forecast_wide <- df_forecast %>% 
-  pivot_wider(names_from = ServiceLevel, 
-              values_from = `POPULATION(MILLIONS)`)
-```
-
-
-### Convert df to ts
-
-source: https://www.statology.org/r-convert-data-frame-to-time-series/ 
-
-```{r fig.height=11}
-df_forecast_basic <- df_forecast %>% 
-  filter(ServiceLevel == "AtLeastBasic") %>% 
-  select(!ServiceLevel)
-
-class(df_forecast_basic)
-```
-
-```{r}
-library(zoo)
-tseries <- read.zoo(df_forecast_basic)
-
-tseries 
-```
-
-```{r}
-class(tseries)
-```
-
-```{r}
-#convert to ts object
-tseries_ts <- as.ts(tseries)
-
-#view time series object
-tseries_ts
-
-#view class
-class(tseries_ts)
-```
-
-**convert all dataset to ts**
-
-```{r}
-#convert to timeseries with multiple variables
-tseries_dw <-read.zoo(df_forecast_wide)
-class(tseries_dw)
-
-tseries_dw_ts <- as.ts(df_forecast_wide)
-class(tseries_dw_ts)
-#why doesnt keep multiple var?
-```
-https://stackoverflow.com/questions/29046311/how-to-convert-dataframe-into-time-series
-
-```{r}
-Canada
-```
-
-
-```{r}
-tseries_dw_ts
-```
-
-
-### TS decomposition
+## TS decomposition
 
 source: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r 
 
 ```{r}
-#create time series decomposition with frequecy = 5 years
-tsdata_basic <- ts(tseries_ts, frequency = 5) 
+#create time series decomposition with frequecy = 5 years (there is a sharp change in 5)
+tsdata_basic <- ts(forecast_ts_basic, frequency = 5) 
 ddata_basic <- decompose(tsdata_basic, "additive") #predicted to be additive (verified)
-plot(ddata_basic)
+plot(ddata_basic, sub="WORLD At least basic Forecast")
 ```
 
-Obvious increasing trend as expected. There is seasonal trend if we see the graph but the y-scale is actually only 0.005 range! Therefore, no obvious seasonal or random trend.
-
-**Plot individually** 
-
-We see increasing trend about 1.5 billion people in 5 years. Less steep recently.
-
-```{r}
-plot(ddata_basic$trend)
-```
 
 
 ```{r}
-plot(tseries_ts)
-abline(reg=lm(tseries_ts~time(tseries_ts)), 
-       col = "blue")
+library(ggplot2)
+library(ggfortify)
+
+autoplot(ddata_basic)+
+  theme_bw()+
+  labs(title = "WORLD 'At least basic'",
+       subtitle = "Decomposition of Additive Time Series",
+       xlab = "Time (freq=5 years)",
+       ylab = "values")
 ```
 
-**Create box plot to check cycle**
 
-No cyclic trend found.
-
-```{r}
-boxplot(tseries_ts~cycle(tseries_ts))#, 
-                         # xlab="Year", ylab = "Population (millions)", 
-                         # main = "Drinkin Water At least basic service level between 2000-2020"))
-```
+## Time Series Forecasting
 
 ### Exponential Smoothing
 
@@ -1377,21 +1329,32 @@ Use state space model, source: https://towardsdatascience.com/a-guide-to-forecas
 
 ```{r}
 #Create samples
-training=window(tseries_ts, start = 2000, end = 2015)
-validation=window(tseries_ts, start = 2016)
+# training=window(tseries_ts, start = 2000, end = 2015)
+# validation=window(tseries_ts, start = 2016)
 ```
 
+Use ETS model
+
 ```{r eval=FALSE}
-training
+#install.packages("MLmetrics")
 ```
 
 ```{r}
-ets_model = ets(training, allow.multiplicative.trend = TRUE)
+plot(forecast_ts_basic)
+```
+
+
+
+```{r}
+library(forecast)
+library(MLmetrics)
+
+ets_model = ets(forecast_ts_basic, allow.multiplicative.trend = TRUE)
 summary(ets_model)
 ```
 ETS(A,A,N) means the exponential smoothing model (ETS) has:
 
-* error type "A" = additive
+* error type "M" = multiplicative
 * trend type "A" = additive
 * season type "N" = none.
 
@@ -1400,123 +1363,54 @@ As predicted before, the dataset only have additive trend with no seasonality.
 source: https://www.rdocumentation.org/packages/forecast/versions/8.21/topics/ets 
 
 ```{r}
-library(ModelMetrics)
-ets_forecast = forecast(ets_model, h=length(validation))
+#library(ModelMetrics)
+ets_forecast = forecast(ets_model, h=10)
 
-paste("Validation RMSE: ", round(rmse(validation, ets_forecast$mean),2))
+#paste("Validation RMSE: ", round(RMSE(validation, ets_forecast$mean),2))
 ```
+
 RMSE is not too bad considering mean are mainly in thousands.
 
 ```{r}
-plot(ets_forecast, xlab="Year", ylab="Population(millions)")
+autoplot(ets_forecast, predict.size = 1, 
+         predict.colour = 'blue', predict.linetype = 'dashed',
+         conf.int = TRUE, conf.int.fill = "lightblue")+
+  theme_bw()+
+  labs(title = "Time Series Forecast - Exponential Smoothing (ES)",
+       subtitle = paste("2030 World 'At least basic' ES forecast =",
+                       round(ets_forecast$mean[10], 4), "%"),
+       x = "YEAR",
+       y = "Median Percentage (%)")
 ```
 
-```{r}
-
+```{r eval=FALSE}
+ets_forecast
 ```
-
-```{r}
-
-```
-
-
-```{r}
-summary(ets_forecast)
-```
-
 
 ### ARIMA
 
-```{r}
-model_arima <- auto.arima(tseries_ts)
+source: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
+```{r}
+model_arima <- auto.arima(forecast_ts_basic)
 model_arima
 ```
-```{r}
-#plot residuals
-plot.ts(model_arima$residuals)
-```
 
 ```{r}
-#forecast for 10 years to see if the 2030 goal is achieved
-dwforecast <- forecast(model_arima, #use arima to include everything
-                       level=c(95), #set CI = 95%
-                       h=10) #10 years
+#forecast the next 10 years using library(forecast)
+model_arima_fc <- forecast(model_arima, level=c(95), h=10)
 
-plot(dwforecast)
-```
-
-Validate the Model by Selecting Lag Values
-
-```{r}
-Box.test(model_arima$resid, lag=10, type="Ljung-Box")
-```
-
-#### Plotting in ggfortify
-
-source: https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_ts.html 
-
-```{r}
-#install.packages("ggfortify")
-#install.packages("vars")
-```
-
-
-```{r}
-library(ggfortify)
-autoplot(tseries_ts)+
+autoplot(model_arima_fc, predict.size = 1, 
+         predict.colour = 'red', predict.linetype = 'dashed',
+         conf.int = TRUE, conf.int.fill = "pink")+
   theme_bw()+
-  labs(x="YEAR", y ="Population(millions)")
+  labs(title = "Time Series Forecast - ARIMA",
+       subtitle = paste("2030 World 'At least basic' ARIMA forecast =",
+                       round(model_arima_fc$mean[10], 4), "%"),
+       x = "YEAR",
+       y = "Median Percentage (%)")
 ```
 
-```{r}
-#plot in ggplot using ggfortify
-autoplot(dwforecast, predict.colour = 'blue',
-         predict.linetype = 'dotdash', predict.size = 1,
-         conf.int = TRUE, label=TRUE)+
-  # geom_text(aes(y=model_arima$mean))+
-  # annotate("text", label = paste("Population in 2023 :", 
-  #                                round(dwforecast$mean[10]/1000, 2)),
-  #          x = 2030, y = 8000, color = "blue")
-  theme_bw()+
-  labs(title="Total population with 'at least basic' drinking water service",
-       subtitle= paste("2030's total population with 'at least basic' ARIMA prediction=",
-                       round(dwforecast$mean[10]/1000, 2), "millions"),
-       x="YEAR", y ="Population(millions)")
-```
+##Question
 
-```{r}
-ggtsdiag(model_arima)
-```
-source:
-https://rpubs.com/sinhrks/plot_tsstats 
-https://rpubs.com/sinhrks/plot_ts
-https://rpubs.com/sinhrks/basics
-
-
-```{r}
-tseries_ts %>% 
-  decompose(type ="additive") %>% 
-  autoplot()
-```
-
-```{r}
-round(dwforecast$mean[10]/1000, 2)
-```
-
-#### using vars
-
-```{r}
-library(vars)
-autoplot(tseries_dw_ts)
-```
-
-```{r}
-tseries_dw
-```
-
-
-# Question
-
-* how to filter top and bottom rows in the same pipe?
-* how to put the chosen year in the subtitle of the plot? Do we need this?
+How to resize the display autoplot? Increase font size? 
