@@ -282,7 +282,96 @@ server <- function(input, output){
         plot_donut(values$df, values$region, values$year_end, 
                    values$geoTitle, values$serviceType, values$plotColor)
       )
+    
+    ##Forecast tab ----------------------------------------------  
+    } else if(input$navbar == "Forecast") {
+      values$region <- input$fc_region
+      values$geo <- input$fc_geography
       
+      #select appropriate dataset
+      if (input$fc_dataset == "DrinkingWater"){
+        values$df <- df_water 
+      } else if (input$fc_dataset == "Sanitation") {
+        values$df <- df_sanitation %>% 
+          filter(ServiceLevel != "AnnualRateOfChangeInOpenDefecation")
+      } else {
+        values$df <- df_hygiene
+      }
+      
+      #prefilter dataset
+      if(values$geo == "region"){
+        values$geoRegion <- input$fc_geoRegion
+        values$df <- values$df %>% filter(SDGRegion == values$geoRegion)
+        values$geoTitle <- input$fc_geoRegion #for plot title
+        
+        #print(values$geoRegion) #troubleshoot
+        #print(values$geoTitle) #troubleshoot
+        
+      } else if(values$geo == "region_country"){
+        values$country <- input$fc_region_country
+        values$df <- values$df %>% filter(COUNTRY == values$country)
+        values$geoTitle <- input$fc_region_country #for plot title
+        
+        # print(values$country)  #troubleshoot
+        # print(values$geoTitle) #troubleshoot
+      } else {
+        #values$df <- values$df #specified before
+        values$geoTitle <- values$geo
+        
+        #print(values$geoTitle) #troubleshoot
+      }
+      #view(values$df) #for troubleshooting
+         
+      #plotting ts_raw plot
+      output$ts_raw_plot <- renderPlot(
+        plot_ts_decomp(values$df, values$region, values$geoTitle)
+      )
+      
+      output$fc_downloadRaw <- downloadHandler(
+        filename = function() {
+          paste("plot_decomposed_ts", 
+                values$region, values$geoTitle, ".png", sep="_")
+        },
+        content = function(file) {
+          png(file=file)
+          plot(plot_ts_decomp(values$df, values$region, values$geoTitle))
+          dev.off()
+        }
+      )
+      
+      #plotting forecast plots - ES
+      output$ts_forecast_plotES <- renderPlot(
+        plot_ts_forecast_ES(values$df, values$region, values$geoTitle)
+      )
+      
+      output$fc_downloadForecastES <- downloadHandler(
+        filename = function() {
+          paste("plot_forecast_ts_ES", 
+                values$region, values$geoTitle, ".png", sep="_")
+        },
+        content = function(file) {
+          png(file=file)
+          plot(plot_ts_forecast_ES(values$df, values$region, values$geoTitle))
+          dev.off()
+        }
+      )
+      
+      #plotting forecast plots - ARIMA
+      output$ts_forecast_plotARIMA <- renderPlot(
+        plot_ts_forecast_ARIMA(values$df, values$region, values$geoTitle)
+      )
+      
+      output$fc_downloadForecastA <- downloadHandler(
+        filename = function() {
+          paste("plot_forecast_ts_ARIMA", 
+                values$region, values$geoTitle, ".png", sep="_")
+        },
+        content = function(file) {
+          png(file=file)
+          plot(plot_ts_forecast_ARIMA(values$df, values$region, values$geoTitle))
+          dev.off()
+        }
+      )
     }
   })
 }

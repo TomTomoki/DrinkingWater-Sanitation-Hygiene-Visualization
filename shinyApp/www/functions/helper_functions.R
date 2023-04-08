@@ -173,7 +173,7 @@ plot_lollipop <- function(df, df_type, region, year){
     ggplot(df_lollipop, aes(x=fct_inorder(COUNTRY), y=Percentage)) +
       geom_segment(aes(xend=fct_inorder(COUNTRY), y=0, yend=Percentage)) +
       geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
-      labs(title = "10 Countries with the Highest % of Populations with SurfaceWater Drinking Water Access",
+      labs(title = "Top 10 Countries with the Highest % of Populations with SurfaceWater Drinking Water Access",
            x = "Country") +
       theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
             axis.text.y = element_text(size=15),
@@ -189,7 +189,7 @@ plot_lollipop <- function(df, df_type, region, year){
     ggplot(df_lollipop, aes(x=fct_inorder(COUNTRY), y=Percentage)) +
       geom_segment(aes(xend=fct_inorder(COUNTRY), y=0, yend=Percentage)) +
       geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
-      labs(title = "10 Countries with the Highest % of Populations with OpenDefecation Sanitation Access",
+      labs(title = "Top 10 Countries with the Highest % of Populations with OpenDefecation Sanitation Access",
            x = "Country") +
       theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
             axis.text.y = element_text(size=15),
@@ -205,7 +205,7 @@ plot_lollipop <- function(df, df_type, region, year){
     ggplot(df_lollipop, aes(x=fct_inorder(COUNTRY), y=Percentage)) +
       geom_segment(aes(xend=fct_inorder(COUNTRY), y=0, yend=Percentage)) +
       geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
-      labs(title = "10 Countries with the Highest % of Populations with NoFacility Hygiene Acess",
+      labs(title = "Top 10 Countries with the Highest % of Populations with NoFacility Hygiene Access",
            x = "Country") +
       theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
             axis.text.y = element_text(size=15),
@@ -274,8 +274,96 @@ plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
            ))
 }
 
-#troubleshoot code----------------------------------------
+#troubleshoot DONUT code
 #plot_donut code:
 # df_sanitation %>% filter(COUNTRY == "Zimbabwe") %>% 
 #     plot_donut("NATIONAL", 2020, "Zimbabwe", "Sanitation", "YlOrBr")
 #source: https://www.ardata.fr/ggiraph-book/toolbar.html 
+
+plot_ts_decomp <- function(df, region, geoTitle){
+  df_ts <- df %>% 
+    filter(ServiceLevel == "AtLeastBasic" &
+             REGION == toupper(region))%>%  
+    group_by(YEAR) %>% 
+    summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
+    ungroup()
+  
+  ts_forecast <- df_ts %>% ts_ts()
+  
+  #decomposition
+  tsdata_basic <- ts(ts_forecast, frequency = 5) 
+  ddata_basic <- decompose(tsdata_basic, "additive") #predicted to be additive (verified)
+  
+  autoplot(ddata_basic)+
+    theme_bw()+
+    labs(title = paste(toupper(geoTitle), 
+                       "'At least basic' Service Level (", region, ")"),
+         subtitle = "Decomposition of Additive Time Series (frequency = 5 years)",
+         xlab = "Time (freq=5 years)",
+         ylab = "values")
+} ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r 
+
+#test forecast code:
+# df_water %>% filter(COUNTRY == "Zimbabwe") %>%
+#        plot_ts_decomp("NATIONAL", "Zimbabwe")
+
+plot_ts_forecast_ES<- function(df, region, geoTitle){
+  df_ts <- df %>% 
+    filter(ServiceLevel == "AtLeastBasic" &
+             REGION == toupper(region))%>%  
+    group_by(YEAR) %>% 
+    summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
+    ungroup()
+  
+  ts_forecast <- df_ts %>% ts_ts()
+  
+  #Exponential smoothing (state space model) 
+  ets_model = ets(ts_forecast, allow.multiplicative.trend = TRUE)
+  summary(ets_model)
+  ets_forecast = forecast(ets_model, h=10) #forecast until 2030
+  
+  autoplot(ets_forecast, predict.size = 1, 
+           predict.colour = 'blue', predict.linetype = 'dashed',
+           conf.int = TRUE, conf.int.fill = "lightblue")+
+    theme_bw()+
+    labs(title = "Time Series Forecast - Exponential Smoothing (ES)",
+         subtitle = paste(toupper(geoTitle), "2030 'At least basic' ES forecast =",
+                          round(ets_forecast$mean[10], 4), "%"),
+         x = "YEAR",
+         y = "Median Percentage (%)")
+} ##SOURCE: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261
+
+#test forecast code:
+# df_water %>% filter(COUNTRY == "Zimbabwe") %>%
+#       plot_ts_forecast_ES("NATIONAL", "Zimbabwe")
+   
+plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
+  df_ts <- df %>% 
+    filter(ServiceLevel == "AtLeastBasic" &
+             REGION == toupper(region))%>%  
+    group_by(YEAR) %>% 
+    summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
+    ungroup()
+  
+  ts_forecast <- df_ts %>% ts_ts()
+  
+  #AutoArima Model 
+  model_arima <- auto.arima(ts_forecast)
+  print(model_arima)
+  model_arima_fc <- forecast(model_arima, level=c(95), h=10) #forecast until 2030
+  
+  autoplot(model_arima_fc, predict.size = 1, 
+           predict.colour = 'red', predict.linetype = 'dashed',
+           conf.int = TRUE, conf.int.fill = "pink")+
+    theme_bw()+
+    labs(title = "Time Series Forecast - ARIMA",
+         subtitle = paste(toupper(geoTitle), 
+                          "2030 'At least basic' ARIMA forecast =",
+                          round(model_arima_fc$mean[10], 4), "%"),
+         x = "YEAR",
+         y = "Median Percentage (%)")
+} ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
+
+#test forecast code:
+# df_water %>% #filter(COUNTRY == "Zimbabwe") %>%
+#       plot_ts_forecast_ARIMA("NATIONAL", "WORLD")
