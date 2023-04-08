@@ -78,9 +78,13 @@ plot_map <- function(df, df_type){
              avg_surface = mean(`Surface water`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Unimproved: %.2f%%, Surface water: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_surface, 2))), 
+      geom_polygon_interactive(aes(tooltip = paste(paste("At least basic: ", round(avg_basic, 2), "%"), 
+                                                   paste("Limited: ", round(avg_limited, 2), "%"), 
+                                                   paste("Unimproved: ", round(avg_unimproved, 2), "%"), 
+                                                   paste("Surface water: ", round(avg_surface, 2), "%"), 
+                                                   sep = "\n")), 
                                color = 'white') +
-      scale_fill_distiller(palette = "Paired") +
+      scale_fill_distiller(palette = "Blues") +
       theme_classic() +
       theme(
         axis.line=element_blank(),
@@ -103,9 +107,13 @@ plot_map <- function(df, df_type){
              avg_open = mean(`Open defecation`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = sprintf("At least basic: %.2f%%, Limited: %.2f%%, Unimproved: %.2f%%, Open defecation: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_unimproved, 2),round(avg_open, 2))), 
+      geom_polygon_interactive(aes(tooltip = paste(paste("At least basic: ", round(avg_basic, 2), "%"), 
+                                                   paste("Limited: ", round(avg_limited, 2), "%"), 
+                                                   paste("Unimproved: ", round(avg_unimproved, 2), "%"), 
+                                                   paste("Open defecation: ", round(avg_open, 2), "%"), 
+                                                   sep = "\n")), 
                                color = 'white') +
-      scale_fill_distiller(palette = "YlOrBr") +
+      scale_fill_distiller(palette = "Greens") +
       theme_classic() +
       theme(
         axis.line=element_blank(),
@@ -127,9 +135,12 @@ plot_map <- function(df, df_type){
              avg_noFacility = mean(`No facility`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = sprintf("Basic: %.2f%%, Limited: %.2f%%, No facility: %.2f%%", round(avg_basic, 2), round(avg_limited, 2), round(avg_noFacility, 2))), 
+      geom_polygon_interactive(aes(tooltip = paste(paste("Basic: ", round(avg_basic, 2), "%"), 
+                                                   paste("Limited: ", round(avg_limited, 2), "%"), 
+                                                   paste("No facility: ", round(avg_noFacility, 2), "%"),
+                                                   sep = "\n")), 
                                color = 'white') +
-      scale_fill_distiller(palette = "PuRd") +
+      scale_fill_distiller(palette = "Oranges") +
       theme_classic() +
       theme(
         axis.line=element_blank(),
