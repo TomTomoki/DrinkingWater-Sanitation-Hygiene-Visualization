@@ -1,10 +1,13 @@
 library(shiny)
 library(shinyWidgets)
 library(tidyverse)
-library(ggiraph)
+library(ggiraph) #interactive ploting
 library(shinythemes)
-library(fontawesome)
-library(plotly)
+library(fontawesome) #add icons
+library(plotly) #interactive ploting
+library(forecast) #for forecasting
+library(tsbox) #for forecasting
+library(ggfortify) #for forecasting plot
 
 source("www/functions/helper_functions.R")
 
