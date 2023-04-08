@@ -50,6 +50,8 @@ ui <- fluidPage(
         width = 9,
         wellPanel(
           girafeOutput(outputId = "summary_map_plot"),
+          br(),
+          br(),
           plotOutput(outputId = "summary_lollipop_plot")
         )
       )
@@ -119,11 +121,6 @@ ui <- fluidPage(
       mainPanel(
         wellPanel(
           h3(icon("glass-water-droplet"), "Drinking Water"),
-          strong("Drinking water service can be classified into 4 levels (from best to worst): "),
-          p("- At least basic = 'Drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip, including queuing'"),
-          p("- Limited(>30min) = 'Drinking water from an improved source for which collection time exceeds 30 minutes for a round trip, including queuing'"),
-          p("- Unimproved = 'Drinking water from an unprotected dug well or unprotected spring'"),
-          p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'"),
           br(),
           br(),
           plotlyOutput(outputId = "dw_line_plot"),
@@ -136,9 +133,15 @@ ui <- fluidPage(
           br(),
           plotOutput(outputId = "dw_bar_plot"),
           downloadButton("dw_downloadBar", "Download Bar Plot", 
-                       icon = shiny::icon("download"))
+                       icon = shiny::icon("download")),
+          br(),
+          br(),
+          strong("Drinking water service can be classified into 4 levels (from best to worst): "),
+          p("- At least basic = 'Drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip, including queuing'"),
+          p("- Limited(>30min) = 'Drinking water from an improved source for which collection time exceeds 30 minutes for a round trip, including queuing'"),
+          p("- Unimproved = 'Drinking water from an unprotected dug well or unprotected spring'"),
+          p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'")
         )
-        
       )
     ),
     
@@ -205,11 +208,6 @@ ui <- fluidPage(
       mainPanel(
         wellPanel(
           h3(icon("toilet"), "Sanitation"),
-          strong("Sanitation service can be classified into 4 levels (from best to worst): "),
-          p("- At least basic = 'Use of improved facilities that are not shared with other households'"),
-          p("- Limited = 'Use of improved facilities shared between two or more households'"),
-          p("- Unimproved = 'Use of pit latrines without a slab or platform, hanging latrines or bucket latrines'"),
-          p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'"),
           br(),
           br(),
           plotlyOutput(outputId = "s_line_plot"),
@@ -222,7 +220,14 @@ ui <- fluidPage(
           br(),
           plotOutput(outputId = "s_bar_plot"),
           downloadButton("s_downloadBar", "Download Bar Plot", 
-                         icon = shiny::icon("download"))
+                         icon = shiny::icon("download")),
+          br(),
+          br(),
+          strong("Sanitation service can be classified into 4 levels (from best to worst): "),
+          p("- At least basic = 'Use of improved facilities that are not shared with other households'"),
+          p("- Limited = 'Use of improved facilities shared between two or more households'"),
+          p("- Unimproved = 'Use of pit latrines without a slab or platform, hanging latrines or bucket latrines'"),
+          p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'")
         )
       )
     ),
@@ -290,10 +295,6 @@ ui <- fluidPage(
       mainPanel(
         wellPanel(
           h3(icon("soap"),"Hygiene"),
-          strong("Hygiene service can be classified into 3 levels (from best to worst): "),
-          p("- At least basic = 'Availability of a handwashing facility on premises with soap and water'"),
-          p("- Limited = 'Availability of handwashing facility on premises without soap and water'"),
-          p("- No Facility = 'No handwashing facility on premises'"),
           br(),
           br(),
           plotlyOutput(outputId = "h_line_plot"),
@@ -304,7 +305,14 @@ ui <- fluidPage(
           br(),
           plotOutput(outputId = "h_bar_plot"),
           downloadButton("h_downloadBar", "Download Bar Plot", 
-                         icon = shiny::icon("download"))
+                         icon = shiny::icon("download")),
+          br(),
+          br(),
+          strong("Hygiene service can be classified into 3 levels (from best to worst): "),
+          p("- At least basic = 'Availability of a handwashing facility on premises with soap and water'"),
+          p("- Limited = 'Availability of handwashing facility on premises without soap and water'"),
+          p("- No Facility = 'No handwashing facility on premises'")
+          
         )
       )
     ),
@@ -382,8 +390,6 @@ ui <- fluidPage(
                  p("The forecast graphs display whether JPM's 2030 vision of 100% 'universal access to basic services' will be achieved."),
                  br(),
                  br(),
-               
-                 #girafeOutput(outputId = "summary_map_plot"),
                  plotOutput(outputId = "ts_raw_plot", width = "60%"),
                  downloadButton("fc_downloadRaw", "Download Decomposed Plot", 
                                 icon = shiny::icon("download")),
