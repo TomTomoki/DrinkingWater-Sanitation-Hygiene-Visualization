@@ -229,13 +229,26 @@ plot_line <- function(df, region, year_start, year_end, tab){
   
   df_line <- df %>%
     filter(toupper(REGION) == toupper(region) & YEAR >= year_start 
-           & YEAR <= year_end) %>%
-    mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
-           / 100 / 1000) %>%
+           & YEAR <= year_end)
+  
+  if (region == "Urban") {
+    df_line <- df_line %>%
+      mutate(Total_Population = `POPULATION(THOUSANDS)` * (`%URBAN` / 100) 
+             * Percentage / 100 / 1000)
+  } else if (region == "Rural") {
+    df_line <- df_line %>%
+      mutate(Total_Population = `POPULATION(THOUSANDS)` * (1 - `%URBAN` / 100) 
+             * Percentage / 100 / 1000)
+  } else {
+    df_line <- df_line %>%
+      mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage 
+             / 100 / 1000)
+  }
+  
+  df_line <- df_line %>%
     group_by(YEAR, ServiceLevel) %>%
     summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE)) %>%
     filter(`POPULATION(MILLIONS)` > 0)
-
   
   ggplot(data = df_line, aes(x=YEAR, y=`POPULATION(MILLIONS)`, 
                              group=ServiceLevel, color=ServiceLevel)) +
