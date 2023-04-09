@@ -215,7 +215,12 @@ plot_lollipop <- function(df, df_type, region, year){
 }
 
 
-plot_line <- function(df, region, year_start, year_end){
+plot_line <- function(df, region, year_start, year_end, tab){
+  if (tab == "Drinking Water" || tab == "Sanitation") {
+    df <- df %>%
+      filter(ServiceLevel != "AnnualRateOfChangeInBasic")
+  }
+  
   df_line <- df %>%
     filter(toupper(REGION) == toupper(region) & YEAR >= year_start 
            & YEAR <= year_end) %>%
@@ -230,6 +235,7 @@ plot_line <- function(df, region, year_start, year_end){
                              group=ServiceLevel, color=ServiceLevel)) +
     geom_line() +
     geom_point() +
+    scale_x_continuous(breaks = seq(year_start, year_end)) +
     theme_bw()
 }
 
@@ -273,6 +279,121 @@ plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
            opts_hover(css = "cursor:pointer;fill:red;stroke:red;")
            ))
 }
+
+plot_bar <- function(df, df_type, year_start, year_end, region) {
+  if (df_type == "Drinking Water") {
+    df_bar <- df %>%
+      filter(toupper(REGION) == toupper(region) & YEAR >= year_start & YEAR <= year_end) %>%
+      filter(CriteriaDetails %in% c("Piped", "NonPiped"))
+    if (toupper(region) == 'URBAN') {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)`* `%URBAN`/ 100 * Percentage / 100 / 1000)
+    } else if (toupper(region) == 'RURAL') {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)`* (100 - `%URBAN`) / 100 * Percentage / 100 / 1000)
+    } else {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage / 100 / 1000)
+    }
+    df_bar <- df_bar %>% 
+      group_by(YEAR, CriteriaDetails) %>%
+      summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE))
+    #print(df_bar)
+    df_bar$CriteriaDetails <- factor(df_bar$CriteriaDetails,
+                                     levels = c('NonPiped', 'Piped'),
+                                     labels = c('Non-Piped', 'Piped'))
+    ggplot(df_bar, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = CriteriaDetails)) +
+      geom_col() +
+      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 2), y = `POPULATION(MILLIONS)`, 
+                    color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 3) +
+      labs(color = "Piped / Non-Piped") +
+      scale_fill_manual(values = c('lightblue', 'skyblue')) +
+      labs(x = "Year", y = "Total Population (Millions)", fill = "Piped / Non-Piped") +
+      theme_bw()
+  } else if (df_type == "Sanitation") {
+    df_bar <- df %>%
+      filter(toupper(REGION) == toupper(region) & YEAR >= year_start & YEAR <= year_end) %>%
+      filter(ImprovedSanitationCriteria %in% c("FacilityType"))
+    if (toupper(region) == 'URBAN') {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)`* `%URBAN`/ 100 * Percentage / 100 / 1000) %>%
+        group_by(YEAR, CriteriaDetails) %>%
+        summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE),
+                  `POPULATION` = sum(`POPULATION(THOUSANDS)` * `%URBAN`/ 100 / 1000))
+    } else if (toupper(region) == 'RURAL') {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)`* (100 - `%URBAN`) / 100 * Percentage / 100 / 1000) %>%
+        group_by(YEAR, CriteriaDetails) %>%
+        summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE),
+                  `POPULATION` = sum(`POPULATION(THOUSANDS)` * (100 - `%URBAN`) / 100 / 1000))
+    } else {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage / 100 / 1000) %>%
+        group_by(YEAR, CriteriaDetails) %>%
+        summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE),
+                  `POPULATION` = sum(`POPULATION(THOUSANDS)` / 1000)) 
+    }
+    
+    df_diff <- df_bar %>%
+      mutate(difference = `POPULATION`- sum(`POPULATION(MILLIONS)`, na.rm=TRUE)) %>%
+      mutate(difference = if_else(is.na(difference) | difference < 0, 0, difference)) %>%
+      group_by(YEAR) %>%
+      mutate(CriteriaDetails = 'NoFacility') %>%
+      summarise(CriteriaDetails = first(CriteriaDetails),
+                `POPULATION(MILLIONS)` = mean(`difference`),
+                `POPULATION` = mean(`POPULATION`))
+    
+    df_bar_merge <- rbind(df_bar, df_diff)
+    
+    df_bar_merge$CriteriaDetails <- factor(df_bar_merge$CriteriaDetails,
+                                           levels = c("NoFacility", "LatrinesAndOthers", "SepticTanks", "SewerConnections"), 
+                                           labels = c("No Facility", "Latrines", "Septic Tanks", "Sewer Connections"))
+    
+    #print(df_bar_merge)
+    
+    ggplot(df_bar_merge, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = CriteriaDetails)) +
+      geom_col() +
+      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 2), y = `POPULATION(MILLIONS)`, 
+                    color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 3) +
+      labs(color = "Type of Facilities") +
+      scale_fill_manual(values = c("#00CC99", "#00BFA5", "#009688", "#00796B")) +
+      labs(x = "Year", y = "Total Population (Millions)", fill = "Type of Facilities") +
+      theme_bw()
+  } else {
+    df_bar <- df %>%
+      filter(toupper(REGION) == toupper(region) & YEAR >= year_start & YEAR <= year_end) %>%
+      filter(ServiceLevel != "AnnualRateOfChangeInBasic") %>%
+      filter(ServiceLevel != "Basic")
+    if (toupper(region) == 'URBAN') {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)`* `%URBAN`/ 100 * Percentage / 100 / 1000)
+    } else if (toupper(region) == 'RURAL') {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)`* (100 - `%URBAN`)/ 100 * Percentage / 100 / 1000)
+    } else {
+      df_bar <- df_bar %>%
+        mutate(Total_Population = `POPULATION(THOUSANDS)` * Percentage / 100 / 1000)
+    }
+    df_bar <- df_bar %>% 
+      group_by(YEAR, ServiceLevel) %>%
+      summarise(`POPULATION(MILLIONS)` = sum(`Total_Population`, na.rm=TRUE))
+    
+    df_bar$ServiceLevel <- factor(df_bar$ServiceLevel, levels = c("NoFacility", "Limited(withoutWaterOrSoap)"),
+                                  labels = c("No Facility", "Limited (Without water or soap)"))
+    
+    df_bar <- df_bar %>% filter(!is.na(ServiceLevel))
+    
+    ggplot(df_bar, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = ServiceLevel)) +
+      geom_col() +
+      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 2), y = `POPULATION(MILLIONS)`, 
+                    color = ServiceLevel), position = position_stack(vjust = 0.5), size = 3) +
+      labs(color = "Service Level") +
+      scale_fill_manual(values = c('orange','#CC5500')) +
+      labs(x = "Year", y = "Total Population (Millions)", fill = "Service Level") +
+      theme_bw() 
+  }
+}
+
 
 #troubleshoot DONUT code
 #plot_donut code:
