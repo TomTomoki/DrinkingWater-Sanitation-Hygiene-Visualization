@@ -78,7 +78,8 @@ plot_map <- function(df, df_type){
              avg_surface = mean(`Surface water`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = paste(paste("At least basic: ", round(avg_basic, 2), "%"), 
+      geom_polygon_interactive(aes(tooltip = paste(paste(`COUNTRY, AREA OR TERRITORY`),
+                                                   paste("At least basic: ", round(avg_basic, 2), "%"), 
                                                    paste("Limited: ", round(avg_limited, 2), "%"), 
                                                    paste("Unimproved: ", round(avg_unimproved, 2), "%"), 
                                                    paste("Surface water: ", round(avg_surface, 2), "%"), 
@@ -107,7 +108,8 @@ plot_map <- function(df, df_type){
              avg_open = mean(`Open defecation`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = paste(paste("At least basic: ", round(avg_basic, 2), "%"), 
+      geom_polygon_interactive(aes(tooltip = paste(paste(`COUNTRY, AREA OR TERRITORY`),
+                                                   paste("At least basic: ", round(avg_basic, 2), "%"), 
                                                    paste("Limited: ", round(avg_limited, 2), "%"), 
                                                    paste("Unimproved: ", round(avg_unimproved, 2), "%"), 
                                                    paste("Open defecation: ", round(avg_open, 2), "%"), 
@@ -135,7 +137,8 @@ plot_map <- function(df, df_type){
              avg_noFacility = mean(`No facility`, na.rm=TRUE))
     
     plot <- ggplot(df, aes(x = long, y = lat, group = group, fill = avg_basic)) +
-      geom_polygon_interactive(aes(tooltip = paste(paste("At least basic: ", round(avg_basic, 2), "%"), 
+      geom_polygon_interactive(aes(tooltip = paste(paste(`COUNTRY, AREA OR TERRITORY`),
+                                                   paste("At least basic: ", round(avg_basic, 2), "%"), 
                                                    paste("Limited: ", round(avg_limited, 2), "%"), 
                                                    paste("No facility: ", round(avg_noFacility, 2), "%"),
                                                    sep = "\n")), 
@@ -175,6 +178,7 @@ plot_lollipop <- function(df, df_type, region, year){
       geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
       labs(title = "Top 10 Countries with the Highest % of Populations with SurfaceWater Drinking Water Access",
            x = "Country") +
+      theme_bw() +
       theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
             axis.text.y = element_text(size=15),
             axis.title = element_text(size=20),
@@ -191,6 +195,7 @@ plot_lollipop <- function(df, df_type, region, year){
       geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
       labs(title = "Top 10 Countries with the Highest % of Populations with OpenDefecation Sanitation Access",
            x = "Country") +
+      theme_bw() +
       theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
             axis.text.y = element_text(size=15),
             axis.title = element_text(size=20),
@@ -207,6 +212,7 @@ plot_lollipop <- function(df, df_type, region, year){
       geom_point(size=5, color="red", fill=alpha("orange", 0.3), alpha=0.7, shape=21, stroke=2) +
       labs(title = "Top 10 Countries with the Highest % of Populations with NoFacility Hygiene Access",
            x = "Country") +
+      theme_bw() +
       theme(axis.text.x = element_text(size=15, angle = 45, hjust = 1),
             axis.text.y = element_text(size=15),
             axis.title = element_text(size=20),
