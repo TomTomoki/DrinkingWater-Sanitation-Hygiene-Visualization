@@ -460,7 +460,7 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
   autoplot(holt_forecast, predict.size = 1, 
            predict.colour = 'blue', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "lightblue")+
-    autolayer(fitted(model_holt), series='Fitted')+
+    autolayer(fitted(model_holt), series='Predicted')+
     theme_bw()+
     expand_limits(y=100)+
     theme(text=element_text(size=15))+
@@ -472,7 +472,8 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
          y = "Median Percentage (%) of Population")+
     guides(colour=guide_legend(title=""))+
     theme(legend.position = "bottom", 
-          legend.background = element_rect(fill="lightblue",linetype="solid"))
+          legend.background = element_rect(fill="lightblue",linetype="solid"),
+          plot.subtitle = element_text(color = "darkblue"))
 } ##SOURCE: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261
   #source: https://rstudio-pubs-static.s3.amazonaws.com/681477_4af44c0abe0741d8ad5093df109130b5.html 
 
@@ -517,7 +518,8 @@ plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
          subtitle = paste("'At least basic' forecast in 2030=",
                           target, "%, ", target_label),
          x = "YEAR",
-         y = "Median Percentage (%) of Population")
+         y = "Median Percentage (%) of Population")+
+    theme(plot.subtitle = element_text(color = "deeppink2"))
 } ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
 #test forecast code:
