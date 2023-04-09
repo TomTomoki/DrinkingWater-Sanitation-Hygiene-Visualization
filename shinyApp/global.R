@@ -8,6 +8,7 @@ library(plotly) #interactive ploting
 library(forecast) #for forecasting
 library(tsbox) #for forecasting
 library(ggfortify) #for forecasting plot
+library(markdown)
 
 source("www/functions/helper_functions.R")
 
