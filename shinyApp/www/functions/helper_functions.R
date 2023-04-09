@@ -323,12 +323,13 @@ plot_bar <- function(df, df_type, year_start, year_end, region) {
                                      labels = c('Non-Piped', 'Piped'))
     ggplot(df_bar, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = CriteriaDetails)) +
       geom_col() +
-      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 2), y = `POPULATION(MILLIONS)`, 
+      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 0), y = `POPULATION(MILLIONS)`, 
                     color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 3) +
       labs(color = "Piped / Non-Piped") +
       scale_fill_manual(values = c('lightblue', 'skyblue')) +
       labs(x = "Year", y = "Total Population (Millions)", fill = "Piped / Non-Piped") +
-      theme_bw()
+      theme_bw() +
+      scale_x_continuous(breaks = seq(min(df_bar$YEAR), max(df_bar$YEAR), 1))
   } else if (df_type == "Sanitation") {
     df_bar <- df %>%
       filter(toupper(REGION) == toupper(region) & YEAR >= year_start & YEAR <= year_end) %>%
@@ -372,12 +373,13 @@ plot_bar <- function(df, df_type, year_start, year_end, region) {
     
     ggplot(df_bar_merge, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = CriteriaDetails)) +
       geom_col() +
-      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 2), y = `POPULATION(MILLIONS)`, 
+      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 0), y = `POPULATION(MILLIONS)`, 
                     color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 3) +
       labs(color = "Type of Facilities") +
       scale_fill_manual(values = c("#00CC99", "#00BFA5", "#009688", "#00796B")) +
       labs(x = "Year", y = "Total Population (Millions)", fill = "Type of Facilities") +
-      theme_bw()
+      theme_bw() +
+      scale_x_continuous(breaks = seq(min(df_bar_merge$YEAR), max(df_bar_merge$YEAR), 1))
   } else {
     df_bar <- df %>%
       filter(toupper(REGION) == toupper(region) & YEAR >= year_start & YEAR <= year_end) %>%
@@ -404,12 +406,13 @@ plot_bar <- function(df, df_type, year_start, year_end, region) {
     
     ggplot(df_bar, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = ServiceLevel)) +
       geom_col() +
-      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 2), y = `POPULATION(MILLIONS)`, 
+      geom_text(aes(label = round(`POPULATION(MILLIONS)`, 0), y = `POPULATION(MILLIONS)`, 
                     color = ServiceLevel), position = position_stack(vjust = 0.5), size = 3) +
       labs(color = "Service Level") +
       scale_fill_manual(values = c('orange','#CC5500')) +
       labs(x = "Year", y = "Total Population (Millions)", fill = "Service Level") +
-      theme_bw() 
+      theme_bw() +
+      scale_x_continuous(breaks = seq(min(df_bar$YEAR), max(df_bar$YEAR), 1))
   }
 }
 
