@@ -1284,18 +1284,34 @@ df_forecast <- df_hygiene %>%
 ```
 
 
-At least basic only:
+###At least basic only:
 
 ```{r}
 #water
-df_forecast_basic <- df_water %>% 
+df_forecast_basic <- df_hygiene %>% 
     filter(ServiceLevel == "AtLeastBasic" &
              REGION == "URBAN" &
-             COUNTRY == "Indonesia")%>%  
-    group_by(YEAR) %>% 
-    summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
-    ungroup()
+             COUNTRY == "Canada")#%>%  
+    # group_by(YEAR) %>% 
+    # summarise(median = median(Percentage, na.rm = TRUE)) %>% #insensitive to outlier
+    # ungroup()
 ```
+
+```{r}
+#check if all column values for PErcentage is NA?
+if (all(is.na(df_forecast_basic[["Percentage"]]))) {
+        # print error/ warning message
+        print("No data is available. Please select another country.")
+        
+      } else {  
+        print("Plot available")
+      }
+```
+
+```{r}
+!all(is.na(df_forecast_basic[["Percentage"]]))
+```
+
 
 ## convert df to ts
 
@@ -1317,6 +1333,8 @@ forecast_ts_basic
 ```
 
 ## TS decomposition
+
+We will do TS decomposition to see if the ts has any trend and/or seasonality.
 
 source: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r 
 
@@ -1341,10 +1359,29 @@ autoplot(ddata_basic)+
        ylab = "values")
 ```
 
+It is obvious that the data has trend 
 
 ## TS Forecasting
 
-### Exponential Smoothing - ETS (not used)
+Several ways to do it:
+
+* naive (moving average)
+* exponential smoothing:
+  + Simple (ses(); no trend/difference, no seasonality)
+  + Holt's (holt(); trend, no seasonality; can be additive or multiplicative)
+  + Holt-winter's (ets() or error-trend-seasonality, for trend and seasonality)
+  + Dampened trend (not applicable for us)
+* ARIMA
+
+Naive is basically using the previous day value for today's value. Not useful for us
+
+Exponential smoothing is a step better as it the weight of recent values are greater than the older values. Each values/observations will have a weight/smoothing parameter ( α , β and γ ) and the future value is forecasted by exponential summation of weight * values across time. It is also pretty simple method so does not have high computational effort. 
+
+We can also tune the weight to minimize prediction error but it is not done in this project as we are displaying preliminary forecast of various different region. In holt method, it will automatically optimize the α , β and γ parameters by minimizing AIC and BIC values or errors of the training set (see summary forecast below).  
+
+Source: http://uc-r.github.io/ts_exp_smoothing 
+
+### Exponential Smoothing - ETS/holt-winter's (not used)
 
 Use state space model, source: https://towardsdatascience.com/a-guide-to-forecasting-in-r-6b0c9638c261 
 
@@ -1354,7 +1391,9 @@ Use state space model, source: https://towardsdatascience.com/a-guide-to-forecas
 # validation=window(tseries_ts, start = 2016)
 ```
 
-Use ETS model
+*Use ETS() and let it choose model type automatically*
+
+Auto model means it will choose a type that minimize RMSE, AIC, and BIC
 
 ```{r}
 #plot(forecast_ts_basic)
@@ -1365,19 +1404,21 @@ library(forecast)
 #library(MLmetrics)
 
 ets_model = ets(forecast_ts_basic, allow.multiplicative.trend = TRUE)
+  #allow multiplicative in case they found any multiplicative trend.
 summary(ets_model)
 ```
-ETS(M,A,N) means the exponential smoothing model (ETS) has:
+ETS(A,A,N) means the exponential smoothing model (ETS) has:
 
-* error type "M" = multiplicative
+* error type "A" = additive (some data is "M" = multiplicative)
 * trend type "A" = additive
 * season type "N" = none.
 
 As predicted before, the dataset only have additive trend with no seasonality. 
 
-RMSE is pretty low so the trend is quite good. 
+RMSE (root mean squared error) is really low so the trend is quite good. The prediction accuracy (MAPE) is only 0.0012% though?
 
 source: https://www.rdocumentation.org/packages/forecast/versions/8.21/topics/ets 
+
 https://rstudio-pubs-static.s3.amazonaws.com/681477_4af44c0abe0741d8ad5093df109130b5.html 
 
 ```{r}
@@ -1401,9 +1442,9 @@ if(target >= 100){
 autoplot(ets_forecast, predict.size = 1, 
          predict.colour = 'blue', predict.linetype = 'dashed',
          conf.int = TRUE, conf.int.fill = "lightblue")+
-  autolayer(fitted(ets_model), series = "Fitted")+
+  autolayer(fitted(ets_model), series = "Predicted")+
   theme_bw()+
-  theme(text=element_text(size=12))+
+  theme(text=element_text(size=15))+
   expand_limits(y=100)+
   labs(title = "Time Series Forecast - Exponential Smoothing (ETS)",
        subtitle = paste("[World] [NATIONAL] 'At least basic' 2030 forecast =",
@@ -1412,10 +1453,15 @@ autoplot(ets_forecast, predict.size = 1,
        y = "Median Percentage (%)")+
   guides(colour=guide_legend(title=""))+
     theme(legend.position = "bottom", 
-          legend.background = element_rect(fill="lightblue",linetype="solid"))
+          legend.background = element_rect(fill="lightblue",linetype="solid"), 
+          plot.subtitle = element_text(color = "darkblue"))
 ```
 
-### ES - (HOLT) with trend
+### ES - (HOLT) with trend only
+
+Holt is double exponential coefficient using alpha and beta. If those values are closer to 1, that means it is fast learning. If it is closer to 0, then it is slow learning. We are using the model as is so the alpha and beta coefficient is automatically chosen by the model. We can improve this by running an optimizer (loop within certain range of beta). However, since the plot is reactive, we will just leave it as is (auto value). 
+
+Source: https://www.geeksforgeeks.org/exponential-smoothing-in-r-programming/ 
 
 ```{r eval=FALSE}
 holt_forecast <- holt(forecast_ts_basic) 
@@ -1427,7 +1473,7 @@ summary(holt_forecast)
 autoplot(holt_forecast, predict.size = 1, 
          predict.colour = 'blue', predict.linetype = 'dashed',
          conf.int = TRUE, conf.int.fill = "lightblue") + 
-  autolayer(fitted(holt_forecast), series='Fitted') +
+  autolayer(fitted(holt_forecast), series='Predicted') +
   theme_bw()+
   labs(title = "Time Series Forecast - Exponential Smoothing (Holt)",
        subtitle = paste("[World] [Urban] 'At least basic' 2030 ES forecast =",
@@ -1436,7 +1482,8 @@ autoplot(holt_forecast, predict.size = 1,
        y = "Percentage (%) of Population")+
   guides(colour=guide_legend(title=""))+
   theme(legend.position = "bottom", 
-        legend.background = element_rect(fill="lightblue",linetype="solid"))
+        legend.background = element_rect(fill="lightblue",linetype="solid"),
+        plot.subtitle = element_text(color = "deeppink2"))
 ```
 
 source: https://stackoverflow.com/questions/52997855/add-legend-entry-for-prediction-line-in-rs-forecast-package 
@@ -1444,12 +1491,22 @@ source: https://stackoverflow.com/questions/52997855/add-legend-entry-for-predic
 
 ### ARIMA
 
+ARIMA: Auto-Regressive Integrated Moving Average
+
 source: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
 ```{r}
 model_arima <- auto.arima(forecast_ts_basic)
 model_arima
 ```
+
+ARIMA (p, d, q) = https://people.duke.edu/~rnau/411arim.htm   
+
+* p is the number of autoregressive terms,
+* d is the number of nonseasonal differences needed for stationarity, and
+* q is the number of lagged forecast errors in the prediction equation. 
+
+If it is (0, 1, 1) then it is ES. 
 
 ```{r}
 #forecast the next 10 years using library(forecast)
