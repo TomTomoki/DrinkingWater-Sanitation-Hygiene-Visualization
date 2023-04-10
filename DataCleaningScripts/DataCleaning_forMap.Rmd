@@ -172,7 +172,7 @@ write.csv(water_data_mapping,
 ## The transformed data file above is almost 2GB in size. For our demo purpose, I'll reduce the size.
 
 water_data_mapping_reduced <- water_data_mapping %>%
-  filter(Year >= 2018)
+  filter(Year == 2020)
 
 write.csv(water_data_mapping_reduced, 
           '/Users/tomokikyotani/Local/NU/Spring2023_local/IE6600/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/water_map_reduced.csv', 
@@ -324,7 +324,7 @@ sanitation_data_mapping <- mapWorld%>%
 
 # Reduce the data and export the data
 sanitation_data_mapping_reduced <- sanitation_data_mapping %>%
-  filter(Year >= 2018)
+  filter(Year >= 2020)
 
 write.csv(sanitation_data_mapping_reduced, 
           '/Users/tomokikyotani/Local/NU/Spring2023_local/IE6600/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/sanitation_map_reduced.csv', 
@@ -445,7 +445,7 @@ hygiene_data_mapping <- mapWorld%>%
 
 # Reduce the data and export the data
 hygiene_data_mapping_reduced <- hygiene_data_mapping %>%
-  filter(Year >= 2018)
+  filter(Year >= 2020)
 
 write.csv(hygiene_data_mapping_reduced, 
           '/Users/tomokikyotani/Local/NU/Spring2023_local/IE6600/DrinkingWater-Sanitation-Hygiene-Visualization/shinyApp/www/datasets/hygiene_map_reduced.csv', 

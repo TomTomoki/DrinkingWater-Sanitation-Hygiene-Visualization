@@ -39,9 +39,7 @@ ui <- fluidPage(
         radioButtons(
           inputId = "summary_year",
           label = "Year:",
-          choices = c("2020",
-                      "2019",
-                      "2018"),
+          choices = c("2020"),
           selected = "2020" 
         )
       ),
