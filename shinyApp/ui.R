@@ -155,7 +155,7 @@ ui <- fluidPage(
           p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'"),
           br(),
           strong("Drinking water supplies can be divided into 2 types: "),
-          p("- Piped Supplies = 'Tap water in the dwelling, year or plot, or public standposts'"),
+          p("- Piped Supplies = 'Tap water in the dwelling, yard or plot, or public standposts'"),
           p("- Non - Piped Supplies = 'Boreholes / tubewells, or protected wells and springs, or rainwater, or packaged water (including bottled water and sachet water), or delivered water(including tanker trucks and small carts)'")
         )
       )
