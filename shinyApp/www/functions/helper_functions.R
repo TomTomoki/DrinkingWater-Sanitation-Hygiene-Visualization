@@ -283,10 +283,10 @@ plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
     theme_void() +
     scale_fill_brewer(palette = plotColor) +
     labs(title = paste(toupper(geo), 
-                       " Service Level Distribution Summary (", 
+                       " Service Level Summary (", 
                        year_end, ")"),
          subtitle = paste(serviceType, 
-                          " Median % Population from Countries with Available Values"))
+                          " Median % Population (from Countries with Available Values)"))
   
   girafe(ggobj = plot, 
          options = list(
@@ -490,7 +490,7 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
     expand_limits(y=100)+
     theme(text=element_text(size=15))+
     #ylim(c(NA, 100))+ #set 100% as max
-    labs(title = paste(toupper(geoTitle), region, "Time Series Forecast - Exponential Smoothing (Holt)"),
+    labs(title = paste(toupper(geoTitle), region, "Forecast - Exponential Smoothing (Holt)"),
          subtitle = paste("'At least basic' forecast in 2030 =",
                           target, "%, ", target_label),
          x = "YEAR",
@@ -537,14 +537,14 @@ plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
            predict.colour = 'red', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "pink")+
     theme_bw()+
-    expand_limits(y=100)+ #increase max y to 100%
-    theme(text=element_text(size=15))+
-    labs(title = paste(toupper(geoTitle), region, " Time Series Forecast - ARIMA (Auto)"),
+    expand_limits(y=100)+ #increase max y to 100% to standardized
+    labs(title = paste(toupper(geoTitle), region, "Forecast - ARIMA (Auto)"),
          subtitle = paste("'At least basic' forecast in 2030=",
                           target, "%, ", target_label),
          x = "YEAR",
          y = "Median Percentage (%) of Population")+
-    theme(plot.subtitle = element_text(color = "deeppink2"))
+    theme(text=element_text(size=15),
+          plot.subtitle = element_text(color = "deeppink2"))
 } ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
 #test forecast code:

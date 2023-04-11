@@ -1,6 +1,6 @@
 ## About
 
-This web application is built for IE6600 Final Project (Northeastern University).
+This web application is built for IE6600 Final Project (Northeastern University, Seattle).
 
 **Author:** Team Shabu Shabu (Tomoki Kyotani, Jessica Tanumihardja, Xinan Wang, Jiayue Han)
 
@@ -13,7 +13,13 @@ This web application is built for IE6600 Final Project (Northeastern University)
 
 The web application is built using [R Shiny](https://shiny.rstudio.com/). The full code can be found on [Github](https://github.com/TomTomoki/DrinkingWater-Sanitation-Hygiene-Visualization).
 
-The top navigation bar allows you to choose a summary, the three available service types (drinking water, sanitation, and hygiene) as well as a forecast and about pages. The left sidebar panel provides options to customize the plots. Download buttons are available for each plot's top-right or bottom-left corner. Plots also have hover-over functions to see details.
+The top navigation bar allows you to choose a "Summary", the three available service types ("Drinking Water", "Sanitation", and "Hygiene") as well as "Forecast" and "About" pages. The left sidebar panel provides options to customize the plots by geographical region, classification area, and year. Download buttons are available for each plot's top-right or bottom-left corner of each plot. Plots also have hover-over functions to display detailed number.
+
+In the "Summary" tab, interactive map and lolliplot plots area displayed. These plots are useful to decide countries you want to look further in detail in each dataset.
+
+In the service level tabs, interactive line, donut, and bar plots are displayed. These plots capture different aspects of the available dataset. 
+
+In the "Forecast" tab, interactive time series decomposition and forecast plots are displayed.The focus is only on the "At Least Basic" service level for each customized area. The forecasting is conducted in R using exponential smoothing (Holt method) and auto-ARIMA. Most of the trends are additive with no seasonality. The forecasted "At Least Basic" percentage for each method is shown in the plot subtitle. The data can be compared with JPM's forecasting result shown [here](https://washdata.org/reports/jmp-2021-wash-households).
 
 <br>
 <br>
@@ -22,6 +28,19 @@ The top navigation bar allows you to choose a summary, the three available servi
 
 Access to clean and safe drinking water, sanitation, and hygiene is a fundamental human right and a critical determinant of health and well-being. However, millions of people worldwide lack access to these necessities. This project proposes an analysis of the world's household drinking water, what is the status of household access to safe drinking water, sanitation, and hygiene worldwide, and what factors contribute to disparities in access.
 
-The dataset is originated from and managed by [WHO/UNICEF Joint Monitoring Programme (JPM)](https://washdata.org/data/downloads#WLD). JPM tracks and records the global, regional, and global progress of drinking water, sanitation, and hygiene (WASH). The data is collected from various countries around the world. The datasets contain information on each country's population, facilities, sewer systems, etc. The values are classified into three classification areas: national, urban, and rural.
+The dataset is originated from and managed by [WHO/UNICEF Joint Monitoring Programme (JPM)](https://washdata.org/data/downloads#WLD). JPM tracks and records the global, regional, and global progress of drinking water, sanitation, and hygiene (WASH). The data is collected from various countries around the world by surveys, census, and (recently) water quality testing. The datasets contain information on each country's population, service levels, facilities, sewer systems, etc. The values are classified into three classification areas: national, urban, and rural.
 
-This project proposes a comprehensive analysis of world household drinking water, sanitation, and hygiene. The study utilizes a mixed-methods visualization approach, which provides an understanding of the status of access to these necessities worldwide and identifies gaps, challenges, and opportunities for improvement to achieve higher global health standards. The visualization helps to track whether JPM's 2030 vision of "universal access to basic services" will be achieved promptly.
+This project proposes a comprehensive analysis of world household drinking water, sanitation, and hygiene. The study utilizes a mixed-methods approach, which provides an understanding of the status of access to these necessities worldwide and identifies gaps, challenges, and opportunities for improvement to achieve higher global health standards. The visualization helps to track whether JPM's 2030 vision of "universal access to basic services" will be achieved promptly [(details here)](https://sdgs.un.org/goals/goal6). 
+
+<br>
+<br>
+
+#### Notes
+
+* Not all countries have WASH data. The hygiene dataset also has lesser data available per country.
+* Those countries with no data are shaded grey on the map and no forecast plots will be shown.
+* JPM uses [linear regression method](https://washdata.org/monitoring/methods/estimation-methods) to estimate some values when limited data is available. Therefore, the data appears to have smooth trend over time. 
+* Each Service Level category description can be accessed from the links below:
+  + [Drinking Water](https://washdata.org/monitoring/drinking-water)
+  + [Sanitation](https://washdata.org/monitoring/sanitation)
+  + [Hygiene](https://washdata.org/monitoring/hygiene)

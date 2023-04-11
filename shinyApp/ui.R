@@ -2,6 +2,18 @@
 #Team Shabu-shabu, IE6600, Spring 2023
 
 ui <- fluidPage(
+  
+  #customize font for error message (validation)
+  tags$head(
+    tags$style(HTML("
+      .shiny-output-error-validation {
+        background-color: white;
+        color: darkred;
+        font-weight: bold;
+      }
+    "))
+  ), #https://shiny.rstudio.com/articles/validation.html , https://shiny.rstudio.com/articles/css.html 
+  
   navbarPage(
     "Water, Sanitation & Hygiene (WASH)",
     id = "navbar",
@@ -396,7 +408,7 @@ ui <- fluidPage(
                  p("The forecast graphs display whether JPM's 2030 vision of 100% 'universal access to basic services' will be achieved."),
                  br(),
                  br(),
-                 plotOutput(outputId = "ts_raw_plot", width = "60%"),
+                 plotOutput(outputId = "ts_raw_plot", width = "75%"),
                  downloadButton("fc_downloadRaw", "Download Decomposed Plot", 
                                 icon = shiny::icon("download")),
                  br(),
@@ -408,7 +420,12 @@ ui <- fluidPage(
                  br(),
                  plotOutput(outputId = "ts_forecast_plotARIMA", width = "75%"),
                  downloadButton("fc_downloadForecastA", "Download ARIMA Forecast Plot", 
-                                icon = shiny::icon("download"))
+                                icon = shiny::icon("download")),
+                 br(),
+                 br(),
+                 h4("Forecast notes:"),
+                 p("The forecasted 2030 'At Least Basic' % for each method is shown in the plot subtitle.")
+                 
               )
               )
             ), 
@@ -416,7 +433,9 @@ ui <- fluidPage(
     ##About Tab -----------------------------------------------------
     tabPanel("About",
              icon = icon("github"),
-             includeMarkdown("www/datasets/About.Rmd") #https://shiny.rstudio.com/gallery/biodiversity-national-parks.html 
-               ) 
+             wellPanel(
+               includeMarkdown("www/datasets/About.Rmd") #https://shiny.rstudio.com/gallery/biodiversity-national-parks.html 
+               )
+    )
   )
 )
