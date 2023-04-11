@@ -152,7 +152,11 @@ ui <- fluidPage(
           p("- At least basic = 'Drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip, including queuing'"),
           p("- Limited(>30min) = 'Drinking water from an improved source for which collection time exceeds 30 minutes for a round trip, including queuing'"),
           p("- Unimproved = 'Drinking water from an unprotected dug well or unprotected spring'"),
-          p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'")
+          p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'"),
+          br(),
+          strong("Drinking water supplies can be divided into 2 types: "),
+          p("- Piped Supplies = 'Tap water in the dwelling, year or plot, or public standposts'"),
+          p("- Non - Piped Supplies = 'Boreholes / tubewells, or protected wells and springs, or rainwater, or packaged water (including bottled water and sachet water), or delivered water(including tanker trucks and small carts)'")
         )
       )
     ),
@@ -237,7 +241,13 @@ ui <- fluidPage(
           p("- At least basic = 'Use of improved facilities that are not shared with other households'"),
           p("- Limited = 'Use of improved facilities shared between two or more households'"),
           p("- Unimproved = 'Use of pit latrines without a slab or platform, hanging latrines or bucket latrines'"),
-          p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'")
+          p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'"),
+          br(),
+          strong("Sanitation facility types can be divided into 4 types: "),
+          p("- Sewer Connection = 'Use sewer connection on premises as sanitation facility'"),
+          p("- Septic Tanks = 'Use septic tanks on premises as sanitation facility'"),
+          p("- Latrines = 'Use latrines on premises as sanitation facility'"),
+          p("- No Facility = 'No sanitation facility on premises'")
         )
       )
     ),
