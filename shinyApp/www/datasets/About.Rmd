@@ -28,7 +28,7 @@ In the "Forecast" tab, interactive time series decomposition and forecast plots 
 
 Access to clean and safe drinking water, sanitation, and hygiene is a fundamental human right and a critical determinant of health and well-being. However, millions of people worldwide lack access to these necessities. This project proposes an analysis of the world's household drinking water, what is the status of household access to safe drinking water, sanitation, and hygiene worldwide, and what factors contribute to disparities in access.
 
-The dataset is originated from and managed by [WHO/UNICEF Joint Monitoring Programme (JPM)](https://washdata.org/data/downloads#WLD). JPM tracks and records the global, regional, and global progress of drinking water, sanitation, and hygiene (WASH). The data is collected from various countries around the world by surveys, census, and (recently) water quality testing. The datasets contain information on each country's population, service levels, facilities, sewer systems, etc. The values are classified into three classification areas: national, urban, and rural.
+The dataset is originated from and managed by [WHO/UNICEF Joint Monitoring Programme (JMP)](https://washdata.org/data/downloads#WLD). JPM tracks and records the global, regional, and global progress of drinking water, sanitation, and hygiene (WASH). The data is collected from various countries around the world by surveys, census, and (recently) water quality testing. The datasets contain information on each country's population, service levels, facilities, sewer systems, etc. The values are classified into three classification areas: national, urban, and rural.
 
 This project proposes a comprehensive analysis of world household drinking water, sanitation, and hygiene. The study utilizes a mixed-methods approach, which provides an understanding of the status of access to these necessities worldwide and identifies gaps, challenges, and opportunities for improvement to achieve higher global health standards. The visualization helps to track whether JPM's 2030 vision of "universal access to basic services" will be achieved promptly [(details here)](https://sdgs.un.org/goals/goal6). 
 
@@ -40,6 +40,7 @@ This project proposes a comprehensive analysis of world household drinking water
 * Not all countries have WASH data. The hygiene dataset also has lesser data available per country.
 * Those countries with no data are shaded grey on the map and no forecast plots will be shown.
 * JPM uses [linear regression method](https://washdata.org/monitoring/methods/estimation-methods) to estimate some values when limited data is available. Therefore, the data appears to have smooth trend over time. 
+* Some countries have flat line values of >99% which is converted to 99.5% for processing. This is why some developed countries seemed to not reach the 2030 goal.
 * Each Service Level category description can be accessed from the links below:
   + [Drinking Water](https://washdata.org/monitoring/drinking-water)
   + [Sanitation](https://washdata.org/monitoring/sanitation)
