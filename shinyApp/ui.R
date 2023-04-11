@@ -424,8 +424,8 @@ ui <- fluidPage(
                  br(),
                  br(),
                  h4("Forecast notes:"),
-                 p("The forecasted 2030 'At Least Basic' % for each method is shown in the plot subtitle.")
-                 
+                 p("- The forecasted 2030 'At Least Basic' % for each method is shown in the plot subtitle."),
+                 p("- Some countries have flat line values of >99% which is converted to 99.5% for processing. This is why some developed countries seemed to not reach the 2030 goal.")
               )
               )
             ), 
