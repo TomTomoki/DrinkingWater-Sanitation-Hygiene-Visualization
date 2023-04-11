@@ -325,9 +325,10 @@ server <- function(input, output){
       
       #plotting donut chart
       output$h_donut_plot <- renderGirafe(
-        plot_donut(values$df, values$region, values$year_end, 
-                   values$geoTitle, values$serviceType, values$plotColor)
-      )
+          plot_donut(values$df, values$region, values$year_end, 
+                     values$geoTitle, values$serviceType, values$plotColor)
+        )
+       
     
     ##Forecast tab ----------------------------------------------  
     } else if(input$navbar == "Forecast") {
@@ -368,27 +369,40 @@ server <- function(input, output){
       }
       #view(values$df_ts) #for troubleshooting
          
-      #plotting ts_raw plot
-      output$ts_raw_plot <- renderPlot(
-        plot_ts_decomp(values$df_ts, values$region, values$geoTitle)
-      )
-      
+      output$ts_raw_plot <- renderPlot({
+          #check if all data is NA (plot error)
+          validate(
+            need(!all(is.na(values$df_ts[["Percentage"]])),
+                 message = paste("No data available for",values$geoTitle,
+                 ". Please choose another Country.")
+          ))
+          
+          plot_ts_decomp(values$df_ts, values$region, values$geoTitle)
+      })
+        
       output$fc_downloadRaw <- downloadHandler(
-        filename = function() {
-          paste("plot_decomposed_ts", 
-                values$region, values$geoTitle, ".png", sep="_")
-        },
-        content = function(file) {
-          png(file=file)
-          plot(plot_ts_decomp(values$df_ts, values$region, values$geoTitle))
-          dev.off()
-        }
+          filename = function() {
+            paste("plot_decomposed_ts", 
+                  values$region, values$geoTitle, ".png", sep="_")
+          },
+          content = function(file) {
+            png(file=file)
+            plot(plot_ts_decomp(values$df_ts, values$region, values$geoTitle))
+            dev.off()
+          }
       )
       
       #plotting forecast plots - ES
-      output$ts_forecast_plotES <- renderPlot(
+      output$ts_forecast_plotES <- renderPlot({
+        #check if all data is NA (plot error)
+        validate(
+          need(!all(is.na(values$df_ts[["Percentage"]])),
+               message = paste("No data available for",values$geoTitle,
+                               ". Please choose another Country.")
+          ))
+        
         plot_ts_forecast_ES(values$df_ts, values$region, values$geoTitle)
-      )
+      })
       
       output$fc_downloadForecastES <- downloadHandler(
         filename = function() {
@@ -403,9 +417,15 @@ server <- function(input, output){
       )
       
       #plotting forecast plots - ARIMA
-      output$ts_forecast_plotARIMA <- renderPlot(
+      output$ts_forecast_plotARIMA <- renderPlot({
+        #check if all data is NA (plot error)
+        validate(
+          need(!all(is.na(values$df_ts[["Percentage"]])),
+               message = paste("No data available for",values$geoTitle,
+                               ". Please choose another Country.")
+          ))
         plot_ts_forecast_ARIMA(values$df_ts, values$region, values$geoTitle)
-      )
+      })
       
       output$fc_downloadForecastA <- downloadHandler(
         filename = function() {

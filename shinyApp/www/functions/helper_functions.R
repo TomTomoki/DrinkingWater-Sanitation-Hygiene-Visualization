@@ -283,10 +283,10 @@ plot_donut <- function(df, region, year_end, geo, serviceType, plotColor){
     theme_void() +
     scale_fill_brewer(palette = plotColor) +
     labs(title = paste(toupper(geo), 
-                       " Service Level Distribution Summary (", 
+                       " Service Level Summary (", 
                        year_end, ")"),
          subtitle = paste(serviceType, 
-                          " Median % Population from Countries with Available Values"))
+                          " Median % Population (from Countries with Available Values)"))
   
   girafe(ggobj = plot, 
          options = list(
@@ -324,11 +324,12 @@ plot_bar <- function(df, df_type, year_start, year_end, region) {
     ggplot(df_bar, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = CriteriaDetails)) +
       geom_col() +
       geom_text(aes(label = round(`POPULATION(MILLIONS)`, 0), y = `POPULATION(MILLIONS)`, 
-                    color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 3) +
+                    color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 4) +
       labs(color = "Piped / Non-Piped") +
       scale_fill_manual(values = c('lightblue', 'skyblue')) +
       labs(x = "Year", y = "Total Population (Millions)", fill = "Piped / Non-Piped") +
       theme_bw() +
+      theme(text=element_text(size=15)) +
       scale_x_continuous(breaks = seq(min(df_bar$YEAR), max(df_bar$YEAR), 1))
   } else if (df_type == "Sanitation") {
     df_bar <- df %>%
@@ -374,11 +375,12 @@ plot_bar <- function(df, df_type, year_start, year_end, region) {
     ggplot(df_bar_merge, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = CriteriaDetails)) +
       geom_col() +
       geom_text(aes(label = round(`POPULATION(MILLIONS)`, 0), y = `POPULATION(MILLIONS)`, 
-                    color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 3) +
+                    color = CriteriaDetails), position = position_stack(vjust = 0.5), size = 4) +
       labs(color = "Type of Facilities") +
       scale_fill_manual(values = c("#00CC99", "#00BFA5", "#009688", "#00796B")) +
       labs(x = "Year", y = "Total Population (Millions)", fill = "Type of Facilities") +
       theme_bw() +
+      theme(text=element_text(size=15)) +
       scale_x_continuous(breaks = seq(min(df_bar_merge$YEAR), max(df_bar_merge$YEAR), 1))
   } else {
     df_bar <- df %>%
@@ -407,11 +409,12 @@ plot_bar <- function(df, df_type, year_start, year_end, region) {
     ggplot(df_bar, aes(x = YEAR, y = `POPULATION(MILLIONS)`, fill = ServiceLevel)) +
       geom_col() +
       geom_text(aes(label = round(`POPULATION(MILLIONS)`, 0), y = `POPULATION(MILLIONS)`, 
-                    color = ServiceLevel), position = position_stack(vjust = 0.5), size = 3) +
+                    color = ServiceLevel), position = position_stack(vjust = 0.5), size = 4) +
       labs(color = "Service Level") +
       scale_fill_manual(values = c('orange','#CC5500')) +
       labs(x = "Year", y = "Total Population (Millions)", fill = "Service Level") +
       theme_bw() +
+      theme(text=element_text(size=15)) +
       scale_x_continuous(breaks = seq(min(df_bar$YEAR), max(df_bar$YEAR), 1))
   }
 }
@@ -487,7 +490,7 @@ plot_ts_forecast_ES<- function(df, region, geoTitle){
     expand_limits(y=100)+
     theme(text=element_text(size=15))+
     #ylim(c(NA, 100))+ #set 100% as max
-    labs(title = paste(toupper(geoTitle), region, "Time Series Forecast - Exponential Smoothing (Holt)"),
+    labs(title = paste(toupper(geoTitle), region, "Forecast - Exponential Smoothing (Holt)"),
          subtitle = paste("'At least basic' forecast in 2030 =",
                           target, "%, ", target_label),
          x = "YEAR",
@@ -534,14 +537,14 @@ plot_ts_forecast_ARIMA<- function(df, region, geoTitle){
            predict.colour = 'red', predict.linetype = 'dashed',
            conf.int = TRUE, conf.int.fill = "pink")+
     theme_bw()+
-    expand_limits(y=100)+ #increase max y to 100%
-    theme(text=element_text(size=15))+
-    labs(title = paste(toupper(geoTitle), region, " Time Series Forecast - ARIMA (Auto)"),
+    expand_limits(y=100)+ #increase max y to 100% to standardized
+    labs(title = paste(toupper(geoTitle), region, "Forecast - ARIMA (Auto)"),
          subtitle = paste("'At least basic' forecast in 2030=",
                           target, "%, ", target_label),
          x = "YEAR",
          y = "Median Percentage (%) of Population")+
-    theme(plot.subtitle = element_text(color = "deeppink2"))
+    theme(text=element_text(size=15),
+          plot.subtitle = element_text(color = "deeppink2"))
 } ##SOURCE: https://www.simplilearn.com/tutorials/data-science-tutorial/time-series-forecasting-in-r#GoTop
 
 #test forecast code:

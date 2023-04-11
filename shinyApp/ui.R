@@ -2,6 +2,18 @@
 #Team Shabu-shabu, IE6600, Spring 2023
 
 ui <- fluidPage(
+  
+  #customize font for error message (validation)
+  tags$head(
+    tags$style(HTML("
+      .shiny-output-error-validation {
+        background-color: white;
+        color: darkred;
+        font-weight: bold;
+      }
+    "))
+  ), #https://shiny.rstudio.com/articles/validation.html , https://shiny.rstudio.com/articles/css.html 
+  
   navbarPage(
     "Water, Sanitation & Hygiene (WASH)",
     id = "navbar",
@@ -138,7 +150,11 @@ ui <- fluidPage(
           p("- At least basic = 'Drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip, including queuing'"),
           p("- Limited(>30min) = 'Drinking water from an improved source for which collection time exceeds 30 minutes for a round trip, including queuing'"),
           p("- Unimproved = 'Drinking water from an unprotected dug well or unprotected spring'"),
-          p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'")
+          p("- Surface Water = 'Drinking water directly from a river, dam, lake, pond, stream, canal or irrigation canal'"),
+          br(),
+          strong("Drinking water supplies can be divided into 2 types: "),
+          p("- Piped Supplies = 'Tap water in the dwelling, yard or plot, or public standposts'"),
+          p("- Non - Piped Supplies = 'Boreholes / tubewells, or protected wells and springs, or rainwater, or packaged water (including bottled water and sachet water), or delivered water(including tanker trucks and small carts)'")
         )
       )
     ),
@@ -223,7 +239,13 @@ ui <- fluidPage(
           p("- At least basic = 'Use of improved facilities that are not shared with other households'"),
           p("- Limited = 'Use of improved facilities shared between two or more households'"),
           p("- Unimproved = 'Use of pit latrines without a slab or platform, hanging latrines or bucket latrines'"),
-          p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'")
+          p("- Open Defecation = 'Disposal of human faeces in fields, forests, bushes, open bodies of water, beaches or other open spaces, or with solid waste'"),
+          br(),
+          strong("Sanitation facility types can be divided into 4 types: "),
+          p("- Sewer Connection = 'Use sewer connection on premises as sanitation facility'"),
+          p("- Septic Tanks = 'Use septic tanks on premises as sanitation facility'"),
+          p("- Latrines = 'Use latrines on premises as sanitation facility'"),
+          p("- No Facility = 'No sanitation facility on premises'")
         )
       )
     ),
@@ -384,7 +406,7 @@ ui <- fluidPage(
                  p("The forecast graphs display whether JPM's 2030 vision of 100% 'universal access to basic services' will be achieved."),
                  br(),
                  br(),
-                 plotOutput(outputId = "ts_raw_plot", width = "60%"),
+                 plotOutput(outputId = "ts_raw_plot", width = "75%"),
                  downloadButton("fc_downloadRaw", "Download Decomposed Plot", 
                                 icon = shiny::icon("download")),
                  br(),
@@ -396,7 +418,12 @@ ui <- fluidPage(
                  br(),
                  plotOutput(outputId = "ts_forecast_plotARIMA", width = "75%"),
                  downloadButton("fc_downloadForecastA", "Download ARIMA Forecast Plot", 
-                                icon = shiny::icon("download"))
+                                icon = shiny::icon("download")),
+                 br(),
+                 br(),
+                 h4("Forecast notes:"),
+                 p("- The forecasted 2030 'At Least Basic' % for each method is shown in the plot subtitle."),
+                 p("- Some countries have flat line values of >99% which is converted to 99.5% for processing. This is why some developed countries seemed to not reach the 2030 goal.")
               )
               )
             ), 
@@ -404,7 +431,9 @@ ui <- fluidPage(
     ##About Tab -----------------------------------------------------
     tabPanel("About",
              icon = icon("github"),
-             includeMarkdown("www/datasets/About.Rmd") #https://shiny.rstudio.com/gallery/biodiversity-national-parks.html 
-               ) 
+             wellPanel(
+               includeMarkdown("www/datasets/About.Rmd") #https://shiny.rstudio.com/gallery/biodiversity-national-parks.html 
+               )
+    )
   )
 )
